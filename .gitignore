@@ -1,0 +1,11 @@
+*~
+*#
+.#*
+/scripts/tools/bin
+.DS_Store
+.project
+
+/devops/.env
+
+/artifacts/channels/*
+/artifacts/crypto-config/*

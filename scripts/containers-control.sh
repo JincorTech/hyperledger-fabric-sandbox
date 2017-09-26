@@ -1,0 +1,71 @@
+#!/usr/bin/env /bin/bash
+
+cd $(dirname $(type -p $0))
+
+function dockercompose(){
+    set -a
+    source ../devops/.env
+    docker-compose -f ../devops/docker-compose.yaml $@
+}
+
+function dkcl(){
+    CONTAINER_IDS=$(docker ps -aq)
+    echo
+    if [ -z "$CONTAINER_IDS" -o "$CONTAINER_IDS" = " " ]; then
+        echo "========== No containers available for deletion =========="
+    else
+        docker rm -f $CONTAINER_IDS
+    fi
+    echo
+}
+
+function dkrm(){
+    DOCKER_IMAGE_IDS=$(docker images | grep "dev\|none\|test-vp\|peer[0-9]-" | awk '{print $3}')
+    echo
+    if [ -z "$DOCKER_IMAGE_IDS" -o "$DOCKER_IMAGE_IDS" = " " ]; then
+        echo "========== No images available for deletion ==========="
+    else
+        docker rmi -f $DOCKER_IMAGE_IDS
+    fi
+    echo
+}
+
+function down(){
+    dockercompose down
+
+    dkcl
+    dkrm
+
+    rm -rf /tmp/hfc-test-kvs_peerOrg* $HOME/.hfc-key-store/ /tmp/fabric-client-kvs_peerOrg*
+}
+
+function exec() {
+    dockercompose exec $@
+}
+
+function up() {
+    dockercompose up -d $@
+}
+
+function stop() {
+    dockercompose stop $@
+}
+
+function start() {
+    dockercompose start $@
+}
+
+function redeploy() {
+    down
+    up
+}
+
+cmd=$1
+
+if [ -z "$cmd" ]; then
+    echo 'Please, specify any command!'
+    exit
+fi
+
+shift
+$cmd $@
