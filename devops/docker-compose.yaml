@@ -41,7 +41,7 @@ services:
     environment:
       - FABRIC_CA_SERVER_CA_CERTFILE=/etc/hyperledger/fabric-ca-server-config/ca/ca.org1.jincor.com-cert.pem
       - FABRIC_CA_SERVER_CA_KEYFILE=${FABRIC_CA_SERVER_CA_KEYFILE_ORG1}
-      - FABRIC_CA_SERVER_TLS_CERTFILE=/etc/hyperledger/fabric-ca-server-config/tlsca/tlsca.org1.jincor.com-cert.pem
+      - FABRIC_CA_SERVER_TLS_CERTFILE=/etc/hyperledger/fabric-ca-server-config/ca/ca.org1.jincor.com-cert.pem
       - FABRIC_CA_SERVER_TLS_KEYFILE=${FABRIC_CA_SERVER_TLS_KEYFILE_ORG1}
     ports:
       - "7054:7054"
@@ -56,7 +56,7 @@ services:
     environment:
       - FABRIC_CA_SERVER_CA_CERTFILE=/etc/hyperledger/fabric-ca-server-config/ca/ca.org2.jincor.com-cert.pem
       - FABRIC_CA_SERVER_CA_KEYFILE=${FABRIC_CA_SERVER_CA_KEYFILE_ORG2}
-      - FABRIC_CA_SERVER_TLS_CERTFILE=/etc/hyperledger/fabric-ca-server-config/tlsca/tlsca.org2.jincor.com-cert.pem
+      - FABRIC_CA_SERVER_TLS_CERTFILE=/etc/hyperledger/fabric-ca-server-config/ca/ca.org2.jincor.com-cert.pem
       - FABRIC_CA_SERVER_TLS_KEYFILE=${FABRIC_CA_SERVER_TLS_KEYFILE_ORG2}
     ports:
       - "8054:7054"
