@@ -1,5 +1,6 @@
 # Sandbox for Hyperledger Fabric
 
+
 ## Pre-requisites
 
 1. docker
@@ -29,3 +30,9 @@ Look at folder `chaincode/github.com/JincorTech`.
 * `interact.sh` to interact with a chaincode (init,invoke,query)
 
 All this commands should be launch in docker cli.jincor.com container.
+
+
+## Join Organization to channels
+
+Look at `artifacts/add-org.sh`.
+To join Org3 to `org1` and `org2` channels use `./add-org.sh org3 Org3MSP org1 org1; ./add-org.sh org3 Org3MSP org2 org2`

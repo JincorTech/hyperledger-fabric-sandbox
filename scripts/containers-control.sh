@@ -33,9 +33,6 @@ function dkrm(){
 function down(){
     dockercompose down
 
-    #dkcl
-    #dkrm
-
     rm -rf /tmp/hfc-test-kvs_peerOrg* $HOME/.hfc-key-store/ /tmp/fabric-client-kvs_peerOrg*
 }
 
@@ -55,6 +52,11 @@ function start() {
     dockercompose start $@
 }
 
+function restart() {
+    stop
+    start
+}
+
 function redeploy() {
     down
     up
@@ -68,4 +70,10 @@ if [ -z "$cmd" ]; then
 fi
 
 shift
+
+if [ ! -n "$(type -t $cmd)" ] || [ ! "$(type -t $cmd)" = "function" ]; then
+    echo "Unknown command $cmd"
+    exit
+fi
+
 $cmd $@

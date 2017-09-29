@@ -52,5 +52,7 @@ createChannel org1 org1
 joinAndUpdatePeer org1 "org1" "0 1"
 createChannel org2 org2
 joinAndUpdatePeer org2 "org2" "0 1"
+createChannel org3 org3
+joinAndUpdatePeer org3 "org3" "0 1"
 
 echo 'Done!'

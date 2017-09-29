@@ -7,5 +7,6 @@
 
 /devops/.env
 
+/artifacts/tmp/*
 /artifacts/channels/*
 /artifacts/crypto-config/*

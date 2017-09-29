@@ -63,22 +63,31 @@ services:
     volumes:
       - ../artifacts/crypto-config/peerOrganizations/org2.jincor.com/:/etc/hyperledger/fabric-ca-server-config
 
+  ca.org3.jincor.com:
+    container_name: ca.org3.jincor.com
+    extends:
+      file: base-ca.yaml
+      service: ca-base
+    environment:
+      - FABRIC_CA_SERVER_CA_CERTFILE=/etc/hyperledger/fabric-ca-server-config/ca/ca.org3.jincor.com-cert.pem
+      - FABRIC_CA_SERVER_CA_KEYFILE=${FABRIC_CA_SERVER_CA_KEYFILE_ORG3}
+      - FABRIC_CA_SERVER_TLS_CERTFILE=/etc/hyperledger/fabric-ca-server-config/ca/ca.org3.jincor.com-cert.pem
+      - FABRIC_CA_SERVER_TLS_KEYFILE=${FABRIC_CA_SERVER_TLS_KEYFILE_ORG3}
+    ports:
+      - "9054:7054"
+    volumes:
+      - ../artifacts/crypto-config/peerOrganizations/org3.jincor.com/:/etc/hyperledger/fabric-ca-server-config
+
   orderer.jincor.com:
     container_name: orderer.jincor.com
-    image: hyperledger/fabric-orderer
+    extends:
+      file: base-orderer.yaml
+      service: base-orderer
     environment:
-      - ORDERER_GENERAL_LOGLEVEL=debug
-      - ORDERER_GENERAL_LISTENADDRESS=0.0.0.0
       - ORDERER_GENERAL_GENESISMETHOD=file
       - ORDERER_GENERAL_GENESISFILE=/etc/hyperledger/configtx/base.block
-      - ORDERER_GENERAL_LOCALMSPID=OrdererMSP
-      - ORDERER_GENERAL_LOCALMSPDIR=/etc/hyperledger/crypto/orderer/msp
-      - ORDERER_GENERAL_TLS_ENABLED=true
-      - ORDERER_GENERAL_TLS_PRIVATEKEY=/etc/hyperledger/crypto/orderer/tls/server.key
-      - ORDERER_GENERAL_TLS_CERTIFICATE=/etc/hyperledger/crypto/orderer/tls/server.crt
+      - ORDERER_GENERAL_LOCALMSPID=Orderer
       - ORDERER_GENERAL_TLS_ROOTCAS=[/etc/hyperledger/crypto/orderer/tls/ca.crt,/etc/hyperledger/crypto/peer0Org1/tls/ca.crt,/etc/hyperledger/crypto/peer0Org2/tls/ca.crt,/etc/hyperledger/crypto/peer1Org1/tls/ca.crt,/etc/hyperledger/crypto/peer1Org2/tls/ca.crt]
-    working_dir: /opt/gopath/src/github.com/hyperledger/fabric/orderers
-    command: orderer
     ports:
       - 7050:7050
     volumes:
@@ -165,5 +174,43 @@ services:
       - 8058:7053
     volumes:
         - ../artifacts/crypto-config/peerOrganizations/org2.jincor.com/peers/peer1.org2.jincor.com/:/etc/hyperledger/crypto/peer
+    depends_on:
+      - orderer.jincor.com
+
+  peer0.org3.jincor.com:
+    container_name: peer0.org3.jincor.com
+    extends:
+      file: base-peer.yaml
+      service: base-peer
+    environment:
+      - CORE_PEER_ID=peer0.org3.jincor.com
+      - CORE_PEER_LOCALMSPID=Org3MSP
+      - CORE_PEER_ADDRESS=peer0.org3.jincor.com:7051
+      - CORE_PEER_GOSSIP_EXTERNALENDPOINT=peer0.org3.jincor.com:7051
+      # - CORE_PEER_GOSSIP_BOOTSTRAP=peer0.org3.jincor.com:7051
+    ports:
+      - 9051:7051
+      - 9053:7053
+    volumes:
+        - ../artifacts/crypto-config/peerOrganizations/org3.jincor.com/peers/peer0.org3.jincor.com/:/etc/hyperledger/crypto/peer
+    depends_on:
+      - orderer.jincor.com
+
+  peer1.org3.jincor.com:
+    container_name: peer1.org3.jincor.com
+    extends:
+      file: base-peer.yaml
+      service: base-peer
+    environment:
+      - CORE_PEER_ID=peer1.org3.jincor.com
+      - CORE_PEER_LOCALMSPID=Org3MSP
+      - CORE_PEER_ADDRESS=peer1.org3.jincor.com:7051
+      - CORE_PEER_GOSSIP_EXTERNALENDPOINT=peer1.org3.jincor.com:7051
+      # - CORE_PEER_GOSSIP_BOOTSTRAP=peer1.org3.jincor.com:7051
+    ports:
+      - 9056:7051
+      - 9058:7053
+    volumes:
+        - ../artifacts/crypto-config/peerOrganizations/org3.jincor.com/peers/peer1.org3.jincor.com/:/etc/hyperledger/crypto/peer
     depends_on:
       - orderer.jincor.com

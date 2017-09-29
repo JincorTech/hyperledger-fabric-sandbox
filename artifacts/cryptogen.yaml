@@ -8,6 +8,11 @@ OrdererOrgs:
   - Name: Orderer
     Domain: jincor.com
 
+    CA:
+        Country: US
+        Province: California
+        Locality: San Francisco
+
     # ---------------------------------------------------------------------------
     # "Specs" - See PeerOrgs below for complete description
     # ---------------------------------------------------------------------------
@@ -31,6 +36,9 @@ PeerOrgs:
     # organization.  This entry is a Spec.  See "Specs" section below for details.
     # ---------------------------------------------------------------------------
     CA:
+       Country: US
+       Province: California
+       Locality: San Francisco
        Hostname: ca # implicitly ca.org1.jincor.com
 
     # ---------------------------------------------------------------------------
@@ -98,7 +106,28 @@ PeerOrgs:
   - Name: Org2
     Domain: org2.jincor.com
     CA:
+       Country: US
+       Province: California
+       Locality: San Francisco
        Hostname: ca # implicitly ca.org2.jincor.com
+
+    Template:
+      Count: 2
+      #SANS:
+      #  - "localhost"
+    Users:
+      Count: 1
+
+  # ---------------------------------------------------------------------------
+  # Org3: See "Org1" for full specification
+  # ---------------------------------------------------------------------------
+  - Name: Org3
+    Domain: org3.jincor.com
+    CA:
+       Country: US
+       Province: California
+       Locality: San Francisco
+       Hostname: ca # implicitly ca.org3.jincor.com
 
     Template:
       Count: 2

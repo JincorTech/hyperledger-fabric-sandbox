@@ -12,12 +12,13 @@ Profiles:
         Orderer:
             <<: *OrdererDefaults
             Organizations:
-                - *OrdererOrg
+                - *Orderer
         Consortiums:
             SampleConsortium:
                 Organizations:
                     - *Org1
                     - *Org2
+                    - *Org3
 
     TwoOrgsChannel:
         Consortium: SampleConsortium
@@ -41,6 +42,13 @@ Profiles:
             Organizations:
                 - *Org2
 
+    Org3Channel:
+        Consortium: SampleConsortium
+        Application:
+            <<: *ApplicationDefaults
+            Organizations:
+                - *Org3
+
 ################################################################################
 #
 #   Section: Organizations
@@ -53,16 +61,18 @@ Organizations:
 
     # SampleOrg defines an MSP using the sampleconfig.  It should never be used
     # in production but may be used as a template for other definitions
-    - &OrdererOrg
+    - &Orderer
         # DefaultOrg defines the organization which is used in the sampleconfig
         # of the fabric.git development environment
-        Name: OrdererOrg
+        Name: Orderer
 
         # ID to load the MSP definition as
-        ID: OrdererMSP
+        ID: Orderer
 
         # MSPDir is the filesystem path which contains the MSP configuration
         MSPDir: crypto-config/ordererOrganizations/jincor.com/msp
+
+        AdminPrincipal: Role.ADMIN
 
     - &Org1
         # DefaultOrg defines the organization which is used in the sampleconfig
@@ -73,6 +83,8 @@ Organizations:
         ID: Org1MSP
 
         MSPDir: crypto-config/peerOrganizations/org1.jincor.com/msp
+
+        AdminPrincipal: Role.ADMIN
 
         AnchorPeers:
             # AnchorPeers defines the location of peers which can be used
@@ -91,11 +103,32 @@ Organizations:
 
         MSPDir: crypto-config/peerOrganizations/org2.jincor.com/msp
 
+        AdminPrincipal: Role.ADMIN
+
         AnchorPeers:
             # AnchorPeers defines the location of peers which can be used
             # for cross org gossip communication.  Note, this value is only
             # encoded in the genesis block in the Application section context
             - Host: peer0.org2.jincor.com
+              Port: 7051
+
+    - &Org3
+        # DefaultOrg defines the organization which is used in the sampleconfig
+        # of the fabric.git development environment
+        Name: Org3MSP
+
+        # ID to load the MSP definition as
+        ID: Org3MSP
+
+        MSPDir: crypto-config/peerOrganizations/org3.jincor.com/msp
+
+        AdminPrincipal: Role.ADMIN
+
+        AnchorPeers:
+            # AnchorPeers defines the location of peers which can be used
+            # for cross org gossip communication.  Note, this value is only
+            # encoded in the genesis block in the Application section context
+            - Host: peer0.org3.jincor.com
               Port: 7051
 
 ################################################################################
@@ -137,7 +170,10 @@ Orderer: &OrdererDefaults
         # Brokers: A list of Kafka brokers to which the orderer connects
         # NOTE: Use IP:port notation
         Brokers:
-            - 127.0.0.1:9092
+            - kafka0:9092
+            - kafka1:9092
+            - kafka2:9092
+
 
     # Organizations is the list of orgs which are defined as participants on
     # the orderer side of the network

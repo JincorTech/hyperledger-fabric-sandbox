@@ -6,6 +6,7 @@
 source /opt/sandbox/scripts/shared/functions.sh
 
 for org in $2; do
+    echo "Install chaincode $1 to $2..."
     for peer in 0; do
         setVarsForPeer $org $peer
         peer chaincode install -p github.com/JincorTech/$1 -n $1 -v 0

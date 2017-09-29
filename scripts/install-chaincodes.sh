@@ -14,10 +14,13 @@ cd $src_folder
 
 echo 'Install chaincodes...'
 
-for src in chaincode1 chaincode2; do
-    echo "Build and install $src..."
+for src in chaincode1 chaincode2 chaincode3; do
+    echo "Build $src..."
     ./make.sh $src
-    ./install.sh $src "org1 org2"
 done
+
+./install.sh chaincode1 "org1 org2"
+./install.sh chaincode2 "org1 org2"
+./install.sh chaincode3 "org3"
 
 echo 'Done!'

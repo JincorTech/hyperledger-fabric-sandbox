@@ -1,5 +1,7 @@
 #!/usr/bin/env /bin/bash
 
+[ -z $(which docker-compose) ] && echo 'Install docker-compose first!' && exit
+
 cd $(dirname $(type -p $0))
 
 pwd=${PWD}

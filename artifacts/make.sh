@@ -28,11 +28,13 @@ function buildChansAndBlocks() {
         [common]=TwoOrgsChannel
         [org1]=Org1Channel
         [org2]=Org2Channel
+        [org3]=Org3Channel
     )
     anchors=(
         [common]="Org1MSP Org2MSP"
         [org1]=Org1MSP
         [org2]=Org2MSP
+        [org3]=Org3MSP
     )
 
     echo "Make genesis blocks..."
@@ -69,7 +71,7 @@ function makeEnvFromTemplate() {
     echo 'Make .env from template...'
     cp -f ../devops/.env.template ../devops/.env
 
-    for org in org1 org2; do
+    for org in org1 org2 org3; do
         ca=$(ls crypto-config/peerOrganizations/$org.jincor.com/ca -1 | grep _sk)
         tlsca=$(ls crypto-config/peerOrganizations/$org.jincor.com/tlsca -1 | grep _sk)
         sed -i -e 's/${ca_'$org'}/'$ca'/g' -e 's/${tlsca_'$org'}/'$tlsca'/g' ../devops/.env
