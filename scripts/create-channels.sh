@@ -45,14 +45,17 @@ function joinAndUpdatePeer() {
     done
 }
 
-createChannel org1 common
-joinAndUpdatePeer common "org1 org2" "0 1"
+if [ "$2" = "org3" ]; then
+    createChannel org3 org3
+    joinAndUpdatePeer org3 "org3" "0 1"
+else
+    createChannel org1 common
+    joinAndUpdatePeer common "org1 org2" "0 1"
 
-createChannel org1 org1
-joinAndUpdatePeer org1 "org1" "0 1"
-createChannel org2 org2
-joinAndUpdatePeer org2 "org2" "0 1"
-createChannel org3 org3
-joinAndUpdatePeer org3 "org3" "0 1"
+    createChannel org1 org1
+    joinAndUpdatePeer org1 "org1" "0 1"
+    createChannel org2 org2
+    joinAndUpdatePeer org2 "org2" "0 1"
+fi
 
 echo 'Done!'

@@ -72,23 +72,22 @@ function buildGenesisBlock(){
 }
 
 
-#
-# Not work, need signs for org3 (if org3 not in Organizations configtx.yaml)
-#
 function updateGenesisBlock(){
+    echo "Update orderer gensis block..."
+
     ../scripts/containers-control.sh exec cli.jincor.com bash /opt/sandbox/scripts/shared/exec-peer.sh orderer 0 \
         channel fetch config /opt/sandbox/artifacts/channels/base_genesis.block -c testchainid
 
     prepareChannelBlock ../channels/base_genesis.block
 
     certsPath="../crypto-config/peerOrganizations/$org.jincor.com/msp"
-    configPath=".channel_group.groups.Consortiums.groups.SampleConsortium.groups.$orgMsp.values.MSP.value.config"
+    configPath=".channel_group.groups.Consortiums.groups.CommonConsortium.groups.$orgMsp.values.MSP.value.config"
 
-    jsonPart=$(cat config.json | jq '.channel_group.groups.Consortiums.groups.SampleConsortium.groups.Org1MSP' |
+    jsonPart=$(cat config.json | jq '.channel_group.groups.Consortiums.groups.CommonConsortium.groups.Org1MSP' |
       jq '(.. | select(objects | has("n_out_of"))).n_out_of.n = 0' |
       sed "s/Org1MSP/$orgMsp/g")
 
-    jq ".channel_group.groups.Consortiums.groups.SampleConsortium.groups.$orgMsp = $jsonPart" < config.json |
+    jq ".channel_group.groups.Consortiums.groups.CommonConsortium.groups.$orgMsp = $jsonPart" < config.json |
         jq "$configPath.admins[0] = \"$(base64 < $certsPath/admincerts/Admin@$org.jincor.com-cert.pem)\"" |
         jq "$configPath.root_certs[0] = \"$(base64 < $certsPath/cacerts/ca.$org.jincor.com-cert.pem)\"" |
         jq "$configPath.tls_root_certs[0] = \"$(base64 < $certsPath/tlscacerts/tlsca.$org.jincor.com-cert.pem)\"" > config_new.json
@@ -99,8 +98,13 @@ function updateGenesisBlock(){
         channel update -f /opt/sandbox/artifacts/tmp/config_updates_envelope.pb -c testchainid
 }
 
+
 function updateChannelBlock(){
-    ../scripts/containers-control.sh exec cli.jincor.com bash /opt/sandbox/scripts/shared/exec-peer.sh $owners 0 \
+    echo "Update application channel block..."
+
+    firstOrg=$(echo $owners | cut -d\  -f 1)
+
+    ../scripts/containers-control.sh exec cli.jincor.com bash /opt/sandbox/scripts/shared/exec-peer.sh $firstOrg 0 \
         channel fetch config /opt/sandbox/artifacts/channels/$channel.block -c $channel
 
     prepareChannelBlock ../channels/$channel.block
@@ -108,7 +112,7 @@ function updateChannelBlock(){
     certsPath="../crypto-config/peerOrganizations/$org.jincor.com/msp"
     configPath=".channel_group.groups.Application.groups.$orgMsp.values.MSP.value.config"
 
-    templateOrg=${owners^}MSP
+    templateOrg=${firstOrg^}MSP
 
     jsonPart=$(cat config.json | jq '.channel_group.groups.Application.groups.'$templateOrg | sed "s/$templateOrg/$orgMsp/g")
 
@@ -119,15 +123,25 @@ function updateChannelBlock(){
 
     buildUpdateChannelBlock $channel
 
-    ../scripts/containers-control.sh exec cli.jincor.com bash /opt/sandbox/scripts/shared/exec-peer.sh $owners 0 \
+    for org in $owners; do
+        if [ "$org" = "$firstOrg" ]; then continue; fi
+        ../scripts/containers-control.sh exec cli.jincor.com bash /opt/sandbox/scripts/shared/exec-peer.sh $org 0 \
+            channel signconfigtx -f /opt/sandbox/artifacts/tmp/config_updates_envelope.pb
+    done
+
+    ../scripts/containers-control.sh exec cli.jincor.com bash /opt/sandbox/scripts/shared/exec-peer.sh $firstOrg 0 \
         channel update -f /opt/sandbox/artifacts/tmp/config_updates_envelope.pb -c $channel
 }
 
-../scripts/tools/bin/configtxlator start &
-sleep 0.5
+#../scripts/tools/bin/configtxlator start &
+#sleep 0.5
 
-updateChannelBlock
+if [ "$channel" = "testchainid" ]; then
+    updateGenesisBlock
+else
+    updateChannelBlock
+fi
 
-killall configtxlator
+#killall configtxlator
 
 echo 'Done!'

@@ -14,14 +14,13 @@ Profiles:
             Organizations:
                 - *Orderer
         Consortiums:
-            SampleConsortium:
+            CommonConsortium:
                 Organizations:
                     - *Org1
                     - *Org2
-                    - *Org3
 
     TwoOrgsChannel:
-        Consortium: SampleConsortium
+        Consortium: CommonConsortium
         Application:
             <<: *ApplicationDefaults
             Organizations:
@@ -29,21 +28,21 @@ Profiles:
                 - *Org2
 
     Org1Channel:
-        Consortium: SampleConsortium
+        Consortium: CommonConsortium
         Application:
             <<: *ApplicationDefaults
             Organizations:
                 - *Org1
 
     Org2Channel:
-        Consortium: SampleConsortium
+        Consortium: CommonConsortium
         Application:
             <<: *ApplicationDefaults
             Organizations:
                 - *Org2
 
     Org3Channel:
-        Consortium: SampleConsortium
+        Consortium: CommonConsortium
         Application:
             <<: *ApplicationDefaults
             Organizations:

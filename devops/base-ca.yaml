@@ -1,7 +1,7 @@
 version: '2'
 services:
   ca-base:
-    image: hyperledger/fabric-ca
+    image: hyperledger/fabric-ca:latest
     env_file:
       - .env
     environment:

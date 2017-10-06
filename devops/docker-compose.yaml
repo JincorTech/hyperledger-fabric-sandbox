@@ -6,7 +6,7 @@ networks:
 services:
   cli.jincor.com:
     container_name: cli.jincor.com
-    image: hyperledger/fabric-tools
+    image: hyperledger/fabric-tools:latest
     tty: true
     environment:
       - GOPATH=/opt/gopath
