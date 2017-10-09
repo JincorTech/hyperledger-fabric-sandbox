@@ -7,7 +7,6 @@ services:
     environment:
       - FABRIC_CA_HOME=/etc/hyperledger/fabric-ca-server/ca
       - FABRIC_CA_SERVER_TLS_ENABLED=true
-    command: sh -c 'fabric-ca-server start -b admin:adminpw -d'
     networks:
       - net
     volumes:

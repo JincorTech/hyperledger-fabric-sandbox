@@ -43,6 +43,7 @@ services:
       - FABRIC_CA_SERVER_CA_KEYFILE=${FABRIC_CA_SERVER_CA_KEYFILE_ORG1}
       - FABRIC_CA_SERVER_TLS_CERTFILE=/etc/hyperledger/fabric-ca-server-config/ca/ca.org1.jincor.com-cert.pem
       - FABRIC_CA_SERVER_TLS_KEYFILE=${FABRIC_CA_SERVER_TLS_KEYFILE_ORG1}
+    command: sh -c "fabric-ca-server start -b admin:adminpw -d -n Org1"
     ports:
       - "7054:7054"
     volumes:
@@ -58,6 +59,7 @@ services:
       - FABRIC_CA_SERVER_CA_KEYFILE=${FABRIC_CA_SERVER_CA_KEYFILE_ORG2}
       - FABRIC_CA_SERVER_TLS_CERTFILE=/etc/hyperledger/fabric-ca-server-config/ca/ca.org2.jincor.com-cert.pem
       - FABRIC_CA_SERVER_TLS_KEYFILE=${FABRIC_CA_SERVER_TLS_KEYFILE_ORG2}
+    command: sh -c "fabric-ca-server start -b admin:adminpw -d -n Org2"
     ports:
       - "8054:7054"
     volumes:
@@ -73,6 +75,7 @@ services:
       - FABRIC_CA_SERVER_CA_KEYFILE=${FABRIC_CA_SERVER_CA_KEYFILE_ORG3}
       - FABRIC_CA_SERVER_TLS_CERTFILE=/etc/hyperledger/fabric-ca-server-config/ca/ca.org3.jincor.com-cert.pem
       - FABRIC_CA_SERVER_TLS_KEYFILE=${FABRIC_CA_SERVER_TLS_KEYFILE_ORG3}
+    command: sh -c "fabric-ca-server start -b admin:adminpw -d -n Org3"
     ports:
       - "9054:7054"
     volumes:

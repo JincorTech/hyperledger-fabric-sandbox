@@ -133,8 +133,8 @@ function updateChannelBlock(){
         channel update -f /opt/sandbox/artifacts/tmp/config_updates_envelope.pb -c $channel
 }
 
-#../scripts/tools/bin/configtxlator start &
-#sleep 0.5
+../scripts/tools/bin/configtxlator start &
+sleep 0.5
 
 if [ "$channel" = "testchainid" ]; then
     updateGenesisBlock
@@ -142,6 +142,6 @@ else
     updateChannelBlock
 fi
 
-#killall configtxlator
+killall configtxlator
 
 echo 'Done!'
