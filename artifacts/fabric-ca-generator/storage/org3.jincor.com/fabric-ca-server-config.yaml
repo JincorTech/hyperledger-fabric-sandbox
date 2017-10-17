@@ -59,8 +59,8 @@ tls:
   # Enable TLS (default: false)
   enabled: false
   # TLS for the server's listening port
-  certfile: tls-cert.pem
-  keyfile:
+  certfile: tls-server.crt
+  keyfile: tls-server.key
   clientauth:
     type: noclientcert # requireandverifyclientcert
     certfiles:
@@ -77,7 +77,7 @@ tls:
 #############################################################################
 ca:
   # Name of this CA
-  name: ca.org2.jincor.com
+  name: ca.org3.jincor.com
   # Key file (default: ca-key.pem)
   keyfile: ca-key.pem
   # Certificate file (default: ca-cert.pem)
@@ -178,7 +178,7 @@ ldap:
 #  Affiliation section
 #############################################################################
 affiliations:
-   org2:
+   org3:
       - department1
       - department2
       - department3
@@ -243,15 +243,15 @@ signing:
 #     CA certificates though it can still issue end entity certificates.
 ###########################################################################
 csr:
-   cn: ca.org2.jincor.com
+   cn: ca.org3.jincor.com
    names:
       - C: US
         ST: "North Carolina"
         L: "San Francisco"
-        O: org2.jincor.com
+        O: org3.jincor.com
         OU:
    hosts:
-     - ca.org2.jincor.com
+     - ca.org3.jincor.com
    ca:
       expiry: 131400h
       pathlength: 1

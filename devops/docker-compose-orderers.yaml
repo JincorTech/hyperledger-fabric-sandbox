@@ -1,0 +1,188 @@
+version: '2'
+
+networks:
+  net:
+
+services:
+  cli.jincor.com:
+    extends:
+      file: base-network.yaml
+      service: cli.jincor.com
+    environment:
+      - JINCOR_NETWORK_TYPE=orderers
+
+  zookeeper0.jincor.com:
+    container_name: zookeeper0.jincor.com
+    extends:
+      file: base-zookeeper.yaml
+      service: base-zookeeper
+    environment:
+      - ZOO_MY_ID=1
+      - ZOO_SERVERS=server.1=zookeeper0.jincor.com:2888:3888 server.2=zookeeper1.jincor.com:2888:3888 server.3=zookeeper2.jincor.com:2888:3888
+    networks:
+      - net
+
+  zookeeper1.jincor.com:
+    container_name: zookeeper1.jincor.com
+    extends:
+      file: base-zookeeper.yaml
+      service: base-zookeeper
+    environment:
+      - ZOO_MY_ID=2
+      - ZOO_SERVERS=server.1=zookeeper0.jincor.com:2888:3888 server.2=zookeeper1.jincor.com:2888:3888 server.3=zookeeper2.jincor.com:2888:3888
+    networks:
+      - net
+
+  zookeeper2.jincor.com:
+    container_name: zookeeper2.jincor.com
+    extends:
+      file: base-zookeeper.yaml
+      service: base-zookeeper
+    environment:
+      - ZOO_MY_ID=3
+      - ZOO_SERVERS=server.1=zookeeper0.jincor.com:2888:3888 server.2=zookeeper1.jincor.com:2888:3888 server.3=zookeeper2.jincor.com:2888:3888
+    networks:
+      - net
+
+  kafka0.jincor.com:
+    container_name: kafka0.jincor.com
+    extends:
+      file: base-kafka.yaml
+      service: base-kafka
+    environment:
+      - KAFKA_BROKER_ID=1
+      - KAFKA_MIN_INSYNC_REPLICAS=2
+      - KAFKA_DEFAULT_REPLICATION_FACTOR=3
+      - KAFKA_ZOOKEEPER_CONNECT=zookeeper0.jincor.com:2181,zookeeper1.jincor.com:2181,zookeeper2.jincor.com:2181
+    depends_on:
+      - zookeeper0.jincor.com
+      - zookeeper1.jincor.com
+      - zookeeper2.jincor.com
+    networks:
+      - net
+
+  kafka1.jincor.com:
+    container_name: kafka1.jincor.com
+    extends:
+      file: base-kafka.yaml
+      service: base-kafka
+    environment:
+      - KAFKA_BROKER_ID=2
+      - KAFKA_MIN_INSYNC_REPLICAS=2
+      - KAFKA_DEFAULT_REPLICATION_FACTOR=3
+      - KAFKA_ZOOKEEPER_CONNECT=zookeeper0.jincor.com:2181,zookeeper1.jincor.com:2181,zookeeper2.jincor.com:2181
+    depends_on:
+      - zookeeper0.jincor.com
+      - zookeeper1.jincor.com
+      - zookeeper2.jincor.com
+    networks:
+      - net
+
+  kafka2.jincor.com:
+    container_name: kafka2.jincor.com
+    extends:
+      file: base-kafka.yaml
+      service: base-kafka
+    environment:
+      - KAFKA_BROKER_ID=3
+      - KAFKA_MIN_INSYNC_REPLICAS=2
+      - KAFKA_DEFAULT_REPLICATION_FACTOR=3
+      - KAFKA_ZOOKEEPER_CONNECT=zookeeper0.jincor.com:2181,zookeeper1.jincor.com:2181,zookeeper2.jincor.com:2181
+    depends_on:
+      - zookeeper0.jincor.com
+      - zookeeper1.jincor.com
+      - zookeeper2.jincor.com
+    networks:
+      - net
+
+  ca.jincor.com:
+    extends:
+      file: base-network.yaml
+      service: ca.jincor.com
+
+  ca.org1.jincor.com:
+    extends:
+      file: base-network.yaml
+      service: ca.org1.jincor.com
+
+  ca.org2.jincor.com:
+    extends:
+      file: base-network.yaml
+      service: ca.org2.jincor.com
+
+  ca.org3.jincor.com:
+    extends:
+      file: base-network.yaml
+      service: ca.org3.jincor.com
+
+  orderer0.jincor.com:
+    container_name: orderer0.jincor.com
+    extends:
+      file: base-network.yaml
+      service: orderer.jincor.com
+    volumes:
+        - ../artifacts/crypto-config/ordererOrganizations/jincor.com/orderers/orderer0.jincor.com/:/etc/hyperledger/crypto/orderer
+    ports:
+      - 7050:7050
+    depends_on:
+      - kafka0.jincor.com
+      - kafka1.jincor.com
+      - kafka2.jincor.com
+
+  orderer1.jincor.com:
+    container_name: orderer1.jincor.com
+    extends:
+      file: base-network.yaml
+      service: orderer.jincor.com
+    volumes:
+        - ../artifacts/crypto-config/ordererOrganizations/jincor.com/orderers/orderer1.jincor.com/:/etc/hyperledger/crypto/orderer
+    ports:
+      - 8050:8050
+    depends_on:
+      - kafka0.jincor.com
+      - kafka1.jincor.com
+      - kafka2.jincor.com
+
+  orderer2.jincor.com:
+    container_name: orderer2.jincor.com
+    extends:
+      file: base-network.yaml
+      service: orderer.jincor.com
+    volumes:
+        - ../artifacts/crypto-config/ordererOrganizations/jincor.com/orderers/orderer2.jincor.com/:/etc/hyperledger/crypto/orderer
+    ports:
+      - 9050:9050
+    depends_on:
+      - kafka0.jincor.com
+      - kafka1.jincor.com
+      - kafka2.jincor.com
+
+  peer0.org1.jincor.com:
+    extends:
+      file: base-network.yaml
+      service: peer0.org1.jincor.com
+
+  peer1.org1.jincor.com:
+    extends:
+      file: base-network.yaml
+      service: peer1.org1.jincor.com
+
+  peer0.org2.jincor.com:
+    extends:
+      file: base-network.yaml
+      service: peer0.org2.jincor.com
+
+  peer1.org2.jincor.com:
+    extends:
+      file: base-network.yaml
+      service: peer1.org2.jincor.com
+
+  peer0.org3.jincor.com:
+    extends:
+      file: base-network.yaml
+      service: peer0.org3.jincor.com
+
+  peer1.org3.jincor.com:
+    extends:
+      file: base-network.yaml
+      service: peer1.org3.jincor.com

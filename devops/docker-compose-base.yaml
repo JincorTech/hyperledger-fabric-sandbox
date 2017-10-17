@@ -1,0 +1,84 @@
+version: '2'
+
+networks:
+  net:
+
+services:
+  cli.jincor.com:
+    extends:
+      file: base-network.yaml
+      service: cli.jincor.com
+    depends_on:
+      - orderer.jincor.com
+      - peer0.org1.jincor.com
+
+  ca.jincor.com:
+    extends:
+      file: base-network.yaml
+      service: ca.jincor.com
+
+  ca.org1.jincor.com:
+    extends:
+      file: base-network.yaml
+      service: ca.org1.jincor.com
+
+  ca.org2.jincor.com:
+    extends:
+      file: base-network.yaml
+      service: ca.org2.jincor.com
+
+  ca.org3.jincor.com:
+    extends:
+      file: base-network.yaml
+      service: ca.org3.jincor.com
+
+  orderer.jincor.com:
+    extends:
+      file: base-network.yaml
+      service: orderer.jincor.com
+    volumes:
+        - ../artifacts/crypto-config/ordererOrganizations/jincor.com/orderers/orderer.jincor.com/:/etc/hyperledger/crypto/orderer
+    ports:
+      - 7050:7050
+
+  peer0.org1.jincor.com:
+    extends:
+      file: base-network.yaml
+      service: peer0.org1.jincor.com
+    depends_on:
+      - orderer.jincor.com
+
+  peer1.org1.jincor.com:
+    extends:
+      file: base-network.yaml
+      service: peer1.org1.jincor.com
+    depends_on:
+      - orderer.jincor.com
+
+  peer0.org2.jincor.com:
+    extends:
+      file: base-network.yaml
+      service: peer0.org2.jincor.com
+    depends_on:
+      - orderer.jincor.com
+
+  peer1.org2.jincor.com:
+    extends:
+      file: base-network.yaml
+      service: peer1.org2.jincor.com
+    depends_on:
+      - orderer.jincor.com
+
+  peer0.org3.jincor.com:
+    extends:
+      file: base-network.yaml
+      service: peer0.org3.jincor.com
+    depends_on:
+      - orderer.jincor.com
+
+  peer1.org3.jincor.com:
+    extends:
+      file: base-network.yaml
+      service: peer1.org3.jincor.com
+    depends_on:
+      - orderer.jincor.com

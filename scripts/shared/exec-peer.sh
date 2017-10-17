@@ -9,7 +9,13 @@ pwd=$PWD
 
 source ./functions.sh
 
+orderer="orderer"
+
+if [ "${JINCOR_NETWORK_TYPE}" == "orderers" ]; then
+  orderer="orderer0"
+fi
+
 setVarsForPeer $1 $2
 shift 2
-peer $@ -o orderer.jincor.com:7050 \
+peer $@ -o $orderer.jincor.com:7050 \
     --tls --cafile $ORDERER_CA

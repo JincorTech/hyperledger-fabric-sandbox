@@ -2,10 +2,11 @@ version: '2'
 services:
   ca-base:
     image: hyperledger/fabric-ca:latest
+    user: $USER_ID
     env_file:
       - .env
     environment:
-      - FABRIC_CA_HOME=/etc/hyperledger/fabric-ca-server/ca
+      - FABRIC_CA_HOME=/etc/hyperledger/fabric-ca-server/
       - FABRIC_CA_SERVER_TLS_ENABLED=true
     networks:
       - net

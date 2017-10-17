@@ -6,6 +6,10 @@ cd $(dirname $(type -p $0))
 
 pwd=$PWD
 
+JINCOR_NETWORK_TYPE=${JINCOR_NETWORK_TYPE:-base}
+
+cp configtx-$JINCOR_NETWORK_TYPE.yaml configtx.yaml
+
 function clean() {
     echo 'Clean folders...'
     rm -rf $pwd/crypto-config/* $pwd/channels/*

@@ -1,0 +1,8 @@
+version: '2'
+services:
+  base-zookeeper:
+    image: hyperledger/fabric-zookeeper:latest
+    ports:
+      - 2181
+      - 2888
+      - 3888

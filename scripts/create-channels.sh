@@ -10,6 +10,12 @@ source ./shared/functions.sh
 
 channels_folder=/opt/sandbox/artifacts/channels
 
+orderer="orderer"
+
+if [ "${JINCOR_NETWORK_TYPE}" == "orderers" ]; then
+  orderer="orderer0"
+fi
+
 function createChannel() {
     org=$1
     channelName=$2
@@ -17,7 +23,7 @@ function createChannel() {
     echo $channels_folder/${channelName}/
     echo "Create ${channelName} channel..."
     setVarsForPeer $org 0
-    peer channel create -c ${channelName} -f $channels_folder/${channelName}/${channelName}.tx -o orderer.jincor.com:7050 \
+    peer channel create -c ${channelName} -f $channels_folder/${channelName}/${channelName}.tx -o $orderer.jincor.com:7050 \
         --tls --cafile $ORDERER_CA
     sleep 1
     cd $pwd
@@ -37,7 +43,7 @@ function joinAndUpdatePeer() {
             sleep 2
 
             if [ "$peer" == "0" ]; then # see configtx.yaml, AnchorPeers
-                peer channel update -o orderer.jincor.com:7050 -c ${channelName} -f $channels_folder/${channelName}/${orgsMspIds[$org]}Anchors.tx \
+                peer channel update -o $orderer.jincor.com:7050 -c ${channelName} -f $channels_folder/${channelName}/${orgsMspIds[$org]}Anchors.tx \
                     --tls --cafile $ORDERER_CA
                 echo "Wait update..."
                 sleep 2

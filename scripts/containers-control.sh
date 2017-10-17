@@ -2,10 +2,14 @@
 
 cd $(dirname $(type -p $0))
 
+export USER_ID=$(id -u)
+
+JINCOR_NETWORK_TYPE=${JINCOR_NETWORK_TYPE:-base}
+
 function dockercompose(){
     set -a
     source ../devops/.env
-    docker-compose -f ../devops/docker-compose.yaml $@
+    docker-compose -f ../devops/docker-compose-$JINCOR_NETWORK_TYPE.yaml $@
 }
 
 function dkcl(){
@@ -31,7 +35,7 @@ function dkrm(){
 }
 
 function down(){
-    dockercompose down
+    dockercompose down $@
 
     rm -rf /tmp/hfc-test-kvs_peerOrg* $HOME/.hfc-key-store/ /tmp/fabric-client-kvs_peerOrg*
 }

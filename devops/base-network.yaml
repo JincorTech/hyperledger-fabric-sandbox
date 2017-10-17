@@ -1,8 +1,5 @@
 version: '2'
 
-networks:
-  net:
-
 services:
   cli.jincor.com:
     container_name: cli.jincor.com
@@ -27,11 +24,21 @@ services:
         - ../artifacts/crypto-config/:/etc/hyperledger/crypto/
         - ../chaincode/src/github.com/JincorTech:/opt/gopath/src/github.com/JincorTech/
         - ../:/opt/sandbox
-    depends_on:
-      - orderer.jincor.com
-      - peer0.org1.jincor.com
     networks:
       - net
+
+  ca.jincor.com:
+    container_name: ca.jincor.com
+    extends:
+      file: base-ca.yaml
+      service: ca-base
+    environment:
+      - FABRIC_CA_SERVER_CA_NAME=ca.jincor.com
+    command: sh -c "fabric-ca-server start -b admin:adminpw -d -n Orderer --ca.name=ca.jincor.com"
+    ports:
+      - "6054:6054"
+    volumes:
+      - ../artifacts/fabric-ca-generator/storage/jincor.com:/etc/hyperledger/fabric-ca-server
 
   ca.org1.jincor.com:
     container_name: ca.org1.jincor.com
@@ -40,17 +47,11 @@ services:
       service: ca-base
     environment:
       - FABRIC_CA_SERVER_CA_NAME=ca.org1.jincor.com
-      - FABRIC_CA_SERVER_CA_CERTFILE=/etc/hyperledger/fabric-ca-server-config/ca/ca.org1.jincor.com-cert.pem
-      - FABRIC_CA_SERVER_CA_KEYFILE=${FABRIC_CA_SERVER_CA_KEYFILE_ORG1}
-      - FABRIC_CA_SERVER_TLS_CERTFILE=/etc/hyperledger/fabric-ca-server-config/ca/ca.org1.jincor.com-cert.pem
-      - FABRIC_CA_SERVER_TLS_KEYFILE=${FABRIC_CA_SERVER_TLS_KEYFILE_ORG1}
     command: sh -c "fabric-ca-server start -b admin:adminpw -d -n Org1 --ca.name=ca.org1.jincor.com"
     ports:
       - "7054:7054"
     volumes:
-      - ../artifacts/crypto-config/peerOrganizations/org1.jincor.com:/etc/hyperledger/fabric-ca-server-config
-      # - ../artifacts/crypto-config/peerOrganizations/org1.jincor.com/tlsca:/etc/hyperledger/fabric-ca-server-tls
-
+      - ../artifacts/fabric-ca-generator/storage/org1.jincor.com:/etc/hyperledger/fabric-ca-server
 
   ca.org2.jincor.com:
     container_name: ca.org2.jincor.com
@@ -59,16 +60,11 @@ services:
       service: ca-base
     environment:
       - FABRIC_CA_SERVER_CA_NAME=ca.org2.jincor.com
-      - FABRIC_CA_SERVER_CA_CERTFILE=/etc/hyperledger/fabric-ca-server-config/ca/ca.org2.jincor.com-cert.pem
-      - FABRIC_CA_SERVER_CA_KEYFILE=${FABRIC_CA_SERVER_CA_KEYFILE_ORG2}
-      - FABRIC_CA_SERVER_TLS_CERTFILE=/etc/hyperledger/fabric-ca-server-config/ca/ca.org2.jincor.com-cert.pem
-      - FABRIC_CA_SERVER_TLS_KEYFILE=${FABRIC_CA_SERVER_TLS_KEYFILE_ORG2}
     command: sh -c "fabric-ca-server start -b admin:adminpw -d -n Org2 --ca.name=ca.org2.jincor.com"
     ports:
-      - "8054:7054"
+      - "8054:8054"
     volumes:
-      - ../artifacts/crypto-config/peerOrganizations/org2.jincor.com:/etc/hyperledger/fabric-ca-server-config
-      # - ../artifacts/crypto-config/peerOrganizations/org2.jincor.com/tlsca:/etc/hyperledger/fabric-ca-server-tls
+      - ../artifacts/fabric-ca-generator/storage/org2.jincor.com:/etc/hyperledger/fabric-ca-server
 
   ca.org3.jincor.com:
     container_name: ca.org3.jincor.com
@@ -77,16 +73,11 @@ services:
       service: ca-base
     environment:
       - FABRIC_CA_SERVER_CA_NAME=ca.org3.jincor.com
-      - FABRIC_CA_SERVER_CA_CERTFILE=/etc/hyperledger/fabric-ca-server-config/ca/ca.org3.jincor.com-cert.pem
-      - FABRIC_CA_SERVER_CA_KEYFILE=${FABRIC_CA_SERVER_CA_KEYFILE_ORG3}
-      - FABRIC_CA_SERVER_TLS_CERTFILE=/etc/hyperledger/fabric-ca-server-config/ca/ca.org3.jincor.com-cert.pem
-      - FABRIC_CA_SERVER_TLS_KEYFILE=${FABRIC_CA_SERVER_TLS_KEYFILE_ORG3}
     command: sh -c "fabric-ca-server start -b admin:adminpw -d -n Org3 --ca.name=ca.org3.jincor.com"
     ports:
-      - "9054:7054"
+      - "9054:9054"
     volumes:
-      - ../artifacts/crypto-config/peerOrganizations/org3.jincor.com:/etc/hyperledger/fabric-ca-server-config
-      # - ../artifacts/crypto-config/peerOrganizations/org3.jincor.com/tlsca:/etc/hyperledger/fabric-ca-server-tls
+      - ../artifacts/fabric-ca-generator/storage/org3.jincor.com:/etc/hyperledger/fabric-ca-server
 
   orderer.jincor.com:
     container_name: orderer.jincor.com
@@ -98,11 +89,8 @@ services:
       - ORDERER_GENERAL_GENESISFILE=/etc/hyperledger/configtx/base.block
       - ORDERER_GENERAL_LOCALMSPID=Orderer
       - ORDERER_GENERAL_TLS_ROOTCAS=[/etc/hyperledger/crypto/orderer/tls/ca.crt,/etc/hyperledger/crypto/peer0Org1/tls/ca.crt,/etc/hyperledger/crypto/peer1Org1/tls/ca.crt,/etc/hyperledger/crypto/peer0Org2/tls/ca.crt,/etc/hyperledger/crypto/peer1Org2/tls/ca.crt,/etc/hyperledger/crypto/peer0Org3/tls/ca.crt,/etc/hyperledger/crypto/peer1Org3/tls/ca.crt]
-    ports:
-      - 7050:7050
     volumes:
         - ../artifacts/channels:/etc/hyperledger/configtx
-        - ../artifacts/crypto-config/ordererOrganizations/jincor.com/orderers/orderer.jincor.com/:/etc/hyperledger/crypto/orderer
         - ../artifacts/crypto-config/peerOrganizations/org1.jincor.com/peers/peer0.org1.jincor.com/:/etc/hyperledger/crypto/peer0Org1
         - ../artifacts/crypto-config/peerOrganizations/org1.jincor.com/peers/peer1.org1.jincor.com/:/etc/hyperledger/crypto/peer1Org1
         - ../artifacts/crypto-config/peerOrganizations/org2.jincor.com/peers/peer0.org2.jincor.com/:/etc/hyperledger/crypto/peer0Org2
@@ -128,8 +116,6 @@ services:
       - 7053:7053
     volumes:
         - ../artifacts/crypto-config/peerOrganizations/org1.jincor.com/peers/peer0.org1.jincor.com/:/etc/hyperledger/crypto/peer
-    depends_on:
-      - orderer.jincor.com
 
   peer1.org1.jincor.com:
     container_name: peer1.org1.jincor.com
@@ -147,8 +133,6 @@ services:
       - 7058:7053
     volumes:
         - ../artifacts/crypto-config/peerOrganizations/org1.jincor.com/peers/peer1.org1.jincor.com/:/etc/hyperledger/crypto/peer
-    depends_on:
-      - orderer.jincor.com
 
   peer0.org2.jincor.com:
     container_name: peer0.org2.jincor.com
@@ -166,8 +150,6 @@ services:
       - 8053:7053
     volumes:
         - ../artifacts/crypto-config/peerOrganizations/org2.jincor.com/peers/peer0.org2.jincor.com/:/etc/hyperledger/crypto/peer
-    depends_on:
-      - orderer.jincor.com
 
   peer1.org2.jincor.com:
     container_name: peer1.org2.jincor.com
@@ -185,8 +167,6 @@ services:
       - 8058:7053
     volumes:
         - ../artifacts/crypto-config/peerOrganizations/org2.jincor.com/peers/peer1.org2.jincor.com/:/etc/hyperledger/crypto/peer
-    depends_on:
-      - orderer.jincor.com
 
   peer0.org3.jincor.com:
     container_name: peer0.org3.jincor.com
@@ -204,8 +184,6 @@ services:
       - 9053:7053
     volumes:
         - ../artifacts/crypto-config/peerOrganizations/org3.jincor.com/peers/peer0.org3.jincor.com/:/etc/hyperledger/crypto/peer
-    depends_on:
-      - orderer.jincor.com
 
   peer1.org3.jincor.com:
     container_name: peer1.org3.jincor.com
@@ -223,5 +201,3 @@ services:
       - 9058:7053
     volumes:
         - ../artifacts/crypto-config/peerOrganizations/org3.jincor.com/peers/peer1.org3.jincor.com/:/etc/hyperledger/crypto/peer
-    depends_on:
-      - orderer.jincor.com

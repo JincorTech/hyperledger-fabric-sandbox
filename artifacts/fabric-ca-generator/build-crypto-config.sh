@@ -1,18 +1,32 @@
 #!/bin/bash
 
-[ ! -e bin/fabric-ca-client ] && echo "No file bin/fabric-ca-client" && exit
-[ -z "$(ps f | grep fabric-ca-server | grep -v grep)" ] && echo "You should start fabric-ca-server first!" && exit
+[ -z "$1" ] && echo "Specify yes as argument" && exit
 
 # Make base folders
 mkdir -p ../crypto-config/ordererOrganizations/jincor.com/{ca,msp,orderers,tlsca,users}
 mkdir -p ../crypto-config/peerOrganizations/org{1,2,3}.jincor.com/{ca,msp,peers,tlsca,users}
+
+#declare -A orgsMspIds orgPeers
+
+function domainName() {
+  dn=$(echo $home | sed -r 's;.*/(org[1-3].)?jincor\.com.*;\1jincor.com;')
+}
 
 function fcl() {
     home=$1
     cmd=$2
     shift
     shift
-    ./bin/fabric-ca-client $cmd -H=${PWD}/../crypto-config/$home -d -m=$home $@
+
+    domainName
+
+    ../../scripts/containers-control.sh exec -u $(id -u) ca.$dn /usr/local/bin/fabric-ca-client $cmd \
+      --tls.certfiles=/opt/artifacts/fabric-ca-generator/storage/$dn/tls-ca.crt \
+      --tls.client.certfile=/opt/artifacts/fabric-ca-generator/storage/$dn/client.crt \
+      --tls.client.keyfile=/opt/artifacts/fabric-ca-generator/storage/$dn/client.key \
+      -H=/opt/artifacts/crypto-config/$home -d -m=$home $@
+
+    exit
 }
 
 function fcluc() {
@@ -22,7 +36,10 @@ function fcluc() {
     shift
     shift
     shift
-    fcl $home $cmd -u http://$cred@localhost:6054 $@
+
+    domainName
+
+    fcl $home $cmd -u https://$cred@$dn:6054 $@
 }
 
 function fclu() {
@@ -30,27 +47,10 @@ function fclu() {
     cmd=$2
     shift
     shift
-    fcl $home $cmd -u http://localhost:6054 $@
-}
 
-function makeTls() {
-  cafolder=$1
-  cn=$2
+    domainName
 
-  cp -fv $cafolder/ca-cert.pem ca.crt
-
-  openssl req -newkey ec:$cafolder/ca-cert.pem -nodes -new \
-    -subj "/C=US/ST=North Carolina/L=San Francisco/O=jincor.com/CN=$cn" \
-    -keyout server.key -days 3650 -out server.csr
-
-  openssl x509 -req -days 3650 \
-    -CA $cafolder/ca-cert.pem \
-    -CAkey $cafolder/msp/keystore/*_sk \
-    -in server.csr \
-    -set_serial $(python -c "import random;print(int(random.random()*1e10))") \
-    -out server.crt
-
-  rm server.csr
+    fcl $home $cmd -u https://$dn:6054 $@
 }
 
 function baseOrdererInit() {

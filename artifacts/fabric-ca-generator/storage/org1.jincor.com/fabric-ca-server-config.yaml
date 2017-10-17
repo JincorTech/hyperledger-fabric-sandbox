@@ -59,8 +59,8 @@ tls:
   # Enable TLS (default: false)
   enabled: false
   # TLS for the server's listening port
-  certfile: tls-cert.pem
-  keyfile:
+  certfile: tls-server.crt
+  keyfile: tls-server.key
   clientauth:
     type: noclientcert # requireandverifyclientcert
     certfiles:
