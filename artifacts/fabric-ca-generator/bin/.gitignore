@@ -1,0 +1,4 @@
+fabric-ca-client
+fabric-ca-server
+storage/*/*
+!storage/*/fabric-ca-server-config.yaml

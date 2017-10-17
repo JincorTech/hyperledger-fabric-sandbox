@@ -15,7 +15,7 @@ fi
 cd $pwd/../artifacts
 if [ ! -e "channels" ]; then
     echo 'Make blocks and channels...'
-    ./make.sh
+    ./make.sh clean cryptogen channels devopsenv
 fi
 
 cd $pwd

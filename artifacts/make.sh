@@ -1,5 +1,7 @@
 #!/usr/bin/env /bin/bash
 
+[ -z "$1" ] && echo "Specify operations: clean [cryptogen or fabric-ca] channels devopsenv" && exit
+
 cd $(dirname $(type -p $0))
 
 pwd=$PWD
@@ -11,9 +13,17 @@ function clean() {
 }
 
 
-function buildMsp() {
-    echo 'Make CA and certs...'
+function buildByCryptogen() {
+    echo 'Make CA and certs by cryptogen...'
      ../scripts/tools/bin/cryptogen generate --config cryptogen.yaml --output=$pwd/crypto-config
+}
+
+
+function buildByFabricCa() {
+    echo 'Make CA and certs by fabric-ca...'
+    cd ./fabric-ca-generator
+    bash ./build-crypto-config.sh
+    cd ..
 }
 
 
@@ -78,9 +88,19 @@ function makeEnvFromTemplate() {
     done
 }
 
-clean
-buildMsp
-buildChansAndBlocks
-makeEnvFromTemplate
+if [[ $@ == *"clean"* ]]; then
+    clean
+fi
+if [[ $@ == *"cryptogen"* ]]; then
+    buildByCryptogen
+elif [[ $@ == *"fabric-ca"* ]]; then
+    buildByFabricCa
+fi
+if [[ $@ == *"channels"* ]]; then
+    buildChansAndBlocks
+fi
+if [[ $@ == *"devopsenv"* ]]; then
+    makeEnvFromTemplate
+fi
 
 echo 'Done!'

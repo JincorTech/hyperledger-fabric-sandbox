@@ -22,7 +22,7 @@ To controll the containers, use: `scripts/containers-control.sh {ARGS}`, where *
 
 ## Chaincodes
 
-Look at folder `chaincode/github.com/JincorTech`.
+Look at folder `chaincode/src/github.com/JincorTech`.
 
 * `make.sh` to build a chaincode
 * `install.sh` to install a chaincode

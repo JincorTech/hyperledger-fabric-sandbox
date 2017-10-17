@@ -19,8 +19,11 @@ for src in chaincode1 chaincode2 chaincode3; do
     ./make.sh $src
 done
 
-./install.sh chaincode1 "org1 org2"
-./install.sh chaincode2 "org1 org2"
-./install.sh chaincode3 "org3"
+if [ "$2" = "org3" ]; then
+    ./install.sh chaincode3 "org3" 0
+else
+    ./install.sh chaincode1 "org1" 0
+    ./install.sh chaincode2 "org2" 0
+fi
 
 echo 'Done!'

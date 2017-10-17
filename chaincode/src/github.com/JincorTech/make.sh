@@ -2,6 +2,8 @@
 
 [ -z "$1" ] && echo 'Specify folder name' && exit
 
+cd $(dirname $(type -p $0))
+
 cd $1
 
 echo 'Download shim package...'

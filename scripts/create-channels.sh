@@ -19,6 +19,7 @@ function createChannel() {
     setVarsForPeer $org 0
     peer channel create -c ${channelName} -f $channels_folder/${channelName}/${channelName}.tx -o orderer.jincor.com:7050 \
         --tls --cafile $ORDERER_CA
+    sleep 1
     cd $pwd
 }
 
@@ -33,13 +34,13 @@ function joinAndUpdatePeer() {
             peer channel join -b $channels_folder/${channelName}/${channelName}.block \
                 --tls --cafile $ORDERER_CA
             echo "Wait join..."
-            sleep 1
+            sleep 2
 
             if [ "$peer" == "0" ]; then # see configtx.yaml, AnchorPeers
                 peer channel update -o orderer.jincor.com:7050 -c ${channelName} -f $channels_folder/${channelName}/${orgsMspIds[$org]}Anchors.tx \
                     --tls --cafile $ORDERER_CA
                 echo "Wait update..."
-                sleep 1
+                sleep 2
             fi
         done
     done
