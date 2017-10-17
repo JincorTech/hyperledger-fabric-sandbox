@@ -88,9 +88,9 @@ function updateGenesisBlock(){
       sed "s/Org1MSP/$orgMsp/g")
 
     jq ".channel_group.groups.Consortiums.groups.CommonConsortium.groups.$orgMsp = $jsonPart" < config.json |
-        jq "$configPath.admins[0] = \"$(base64 < $certsPath/admincerts/Admin@$org.jincor.com-cert.pem)\"" |
-        jq "$configPath.root_certs[0] = \"$(base64 < $certsPath/cacerts/ca.$org.jincor.com-cert.pem)\"" |
-        jq "$configPath.tls_root_certs[0] = \"$(base64 < $certsPath/tlscacerts/tlsca.$org.jincor.com-cert.pem)\"" > config_new.json
+        jq "$configPath.admins[0] = \"$(base64 < $certsPath/admincerts/*.pem)\"" |
+        jq "$configPath.root_certs[0] = \"$(base64 < $certsPath/cacerts/*.pem)\"" |
+        jq "$configPath.tls_root_certs[0] = \"$(base64 < $certsPath/tlscacerts/tlsca*.pem)\"" > config_new.json
 
     buildUpdateChannelBlock testchainid
 
@@ -117,9 +117,9 @@ function updateChannelBlock(){
     jsonPart=$(cat config.json | jq '.channel_group.groups.Application.groups.'$templateOrg | sed "s/$templateOrg/$orgMsp/g")
 
     jq ".channel_group.groups.Application.groups.$orgMsp = $jsonPart" < config.json |
-        jq "$configPath.admins[0] = \"$(base64 < $certsPath/admincerts/Admin@$org.jincor.com-cert.pem)\"" |
-        jq "$configPath.root_certs[0] = \"$(base64 < $certsPath/cacerts/ca.$org.jincor.com-cert.pem)\"" |
-        jq "$configPath.tls_root_certs[0] = \"$(base64 < $certsPath/tlscacerts/tlsca.$org.jincor.com-cert.pem)\"" > config_new.json
+        jq "$configPath.admins[0] = \"$(base64 < $certsPath/admincerts/*.pem)\"" |
+        jq "$configPath.root_certs[0] = \"$(base64 < $certsPath/cacerts/*.pem)\"" |
+        jq "$configPath.tls_root_certs[0] = \"$(base64 < $certsPath/tlscacerts/tlsca.*.pem)\"" > config_new.json
 
     buildUpdateChannelBlock $channel
 

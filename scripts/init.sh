@@ -2,6 +2,8 @@
 
 [ -z $(which docker-compose) ] && echo 'Install docker-compose first!' && exit
 
+mspgen=${1:-cryptogen}
+
 cd $(dirname $(type -p $0))
 
 pwd=${PWD}
@@ -15,7 +17,7 @@ fi
 cd $pwd/../artifacts
 if [ ! -e "channels" ]; then
     echo 'Make blocks and channels...'
-    ./make.sh clean cryptogen channels devopsenv
+    ./make.sh clean $mspgen channels devopsenv
 fi
 
 cd $pwd
