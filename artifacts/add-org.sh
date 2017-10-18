@@ -90,7 +90,7 @@ function updateGenesisBlock(){
     jq ".channel_group.groups.Consortiums.groups.CommonConsortium.groups.$orgMsp = $jsonPart" < config.json |
         jq "$configPath.admins[0] = \"$(base64 < $certsPath/admincerts/*.pem)\"" |
         jq "$configPath.root_certs[0] = \"$(base64 < $certsPath/cacerts/*.pem)\"" |
-        jq "$configPath.tls_root_certs[0] = \"$(base64 < $certsPath/tlscacerts/tlsca*.pem)\"" > config_new.json
+        jq "$configPath.tls_root_certs[0] = \"$(base64 < $certsPath/tlscacerts/tls*.pem)\"" > config_new.json
 
     buildUpdateChannelBlock testchainid
 
@@ -119,7 +119,7 @@ function updateChannelBlock(){
     jq ".channel_group.groups.Application.groups.$orgMsp = $jsonPart" < config.json |
         jq "$configPath.admins[0] = \"$(base64 < $certsPath/admincerts/*.pem)\"" |
         jq "$configPath.root_certs[0] = \"$(base64 < $certsPath/cacerts/*.pem)\"" |
-        jq "$configPath.tls_root_certs[0] = \"$(base64 < $certsPath/tlscacerts/tlsca.*.pem)\"" > config_new.json
+        jq "$configPath.tls_root_certs[0] = \"$(base64 < $certsPath/tlscacerts/tls*.pem)\"" > config_new.json
 
     buildUpdateChannelBlock $channel
 

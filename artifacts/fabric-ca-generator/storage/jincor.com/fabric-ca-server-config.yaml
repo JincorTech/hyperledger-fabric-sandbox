@@ -37,7 +37,7 @@
 #############################################################################
 
 # Server's listening port (default: 7054)
-port: 6054
+port: 7054
 
 # Enables debug logging (default: false)
 debug: false
@@ -57,12 +57,12 @@ crlsizelimit: 512000
 #############################################################################
 tls:
   # Enable TLS (default: false)
-  enabled: false
+  enabled: true
   # TLS for the server's listening port
-  certfile: tls-server.crt
+  certfile: tls-server.pem
   keyfile: tls-server.key
   clientauth:
-    type: noclientcert # requireandverifyclientcert
+    type: noclientcert # requestclientcert
     certfiles:
 
 #############################################################################
@@ -77,7 +77,7 @@ tls:
 #############################################################################
 ca:
   # Name of this CA
-  name: ca.jincor.com
+  name:
   # Key file (default: ca-key.pem)
   keyfile: ca-key.pem
   # Certificate file (default: ca-cert.pem)
@@ -133,6 +133,19 @@ registry:
           hf.GenCRL: true
           hf.Registrar.Attributes: "*"
 
+     - name: orderer
+       pass: ordererpw
+       type: orderer
+       affiliation: ""
+       maxenrollments: -1
+       attrs:
+          hf.Registrar.Roles: "orderer"
+          hf.Registrar.DelegateRoles: "client"
+          hf.Revoker: true
+          hf.IntermediateCA: true
+          hf.GenCRL: true
+          hf.Registrar.Attributes: "*"
+
 #############################################################################
 #  Database section
 #  Supported types are: "sqlite3", "postgres", and "mysql".
@@ -178,21 +191,7 @@ ldap:
 #  Affiliation section
 #############################################################################
 affiliations:
-   org1:
-      - department1
-      - department2
-      - department3
-      - department4
-   org2:
-      - department1
-      - department2
-      - department3
-      - department4
-   org3:
-      - department1
-      - department2
-      - department3
-      - department4
+   jincor:
 
 #############################################################################
 #  Signing section
@@ -218,9 +217,7 @@ signing:
     profiles:
       ca:
          usage:
-            - cert sign
-            - key encipherment
-            - digital signature
+           - cert sign
          expiry: 43800h
          caconstraint:
            isca: true
@@ -255,15 +252,15 @@ signing:
 csr:
    cn: ca.jincor.com
    names:
-      - C: US
-        ST: "North Carolina"
-        L: "San Francisco"
-        O: jincor.com
+      - C: CY
+        ST:
+        L: Larnaca
+        O: Jincor Limited
         OU:
    hosts:
-     - jincor.com
+     - ca.jincor.com
    ca:
-      expiry: 131400h
+      expiry: 1314000h
       pathlength: 1
 
 #############################################################################

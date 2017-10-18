@@ -95,6 +95,23 @@ services:
     networks:
       - net
 
+  kafka3.jincor.com:
+    container_name: kafka3.jincor.com
+    extends:
+      file: base-kafka.yaml
+      service: base-kafka
+    environment:
+      - KAFKA_BROKER_ID=4
+      - KAFKA_MIN_INSYNC_REPLICAS=2
+      - KAFKA_DEFAULT_REPLICATION_FACTOR=3
+      - KAFKA_ZOOKEEPER_CONNECT=zookeeper0.jincor.com:2181,zookeeper1.jincor.com:2181,zookeeper2.jincor.com:2181
+    depends_on:
+      - zookeeper0.jincor.com
+      - zookeeper1.jincor.com
+      - zookeeper2.jincor.com
+    networks:
+      - net
+
   ca.jincor.com:
     extends:
       file: base-network.yaml
@@ -128,6 +145,7 @@ services:
       - kafka0.jincor.com
       - kafka1.jincor.com
       - kafka2.jincor.com
+      - kafka3.jincor.com
 
   orderer1.jincor.com:
     container_name: orderer1.jincor.com
@@ -142,6 +160,7 @@ services:
       - kafka0.jincor.com
       - kafka1.jincor.com
       - kafka2.jincor.com
+      - kafka3.jincor.com
 
   orderer2.jincor.com:
     container_name: orderer2.jincor.com
@@ -156,6 +175,7 @@ services:
       - kafka0.jincor.com
       - kafka1.jincor.com
       - kafka2.jincor.com
+      - kafka3.jincor.com
 
   peer0.org1.jincor.com:
     extends:

@@ -1,0 +1,18 @@
+[v3_ca]
+basicConstraints=critical,CA:TRUE, pathlen:0
+subjectKeyIdentifier=hash
+keyUsage = cRLSign, keyCertSign
+# extendedKeyUsage=codeSigning
+# authorityKeyIdentifier=keyid:always,issuer
+
+# authorityKeyIdentifier=keyid:always,issuer
+# extendedKeyUsage=critical,codeSigning
+# nsCertType = sslCA
+# subjectAltName=email:copy
+# issuerAltName=issuer:copy
+
+[v3_req]
+basicConstraints=critical,CA:FALSE
+keyUsage=nonRepudiation, digitalSignature, keyEncipherment
+extendedKeyUsage=serverAuth, clientAuth, codeSigning
+authorityKeyIdentifier=keyid,issuer

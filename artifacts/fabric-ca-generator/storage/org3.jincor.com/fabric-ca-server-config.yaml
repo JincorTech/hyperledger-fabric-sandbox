@@ -37,7 +37,7 @@
 #############################################################################
 
 # Server's listening port (default: 7054)
-port: 6054
+port: 7054
 
 # Enables debug logging (default: false)
 debug: false
@@ -59,10 +59,10 @@ tls:
   # Enable TLS (default: false)
   enabled: false
   # TLS for the server's listening port
-  certfile: tls-server.crt
+  certfile: tls-server.pem
   keyfile: tls-server.key
   clientauth:
-    type: noclientcert # requireandverifyclientcert
+    type: noclientcert # requestclientcert
     certfiles:
 
 #############################################################################
@@ -131,6 +131,32 @@ registry:
           hf.Revoker: true
           hf.IntermediateCA: true
           hf.GenCRL: true
+          hf.Registrar.Attributes: "*"
+
+     - name: peer
+       pass: peerpw
+       type: peer
+       affiliation: ""
+       maxenrollments: -1
+       attrs:
+          hf.Registrar.Roles: "peer"
+          hf.Registrar.DelegateRoles: "client"
+          hf.Revoker: true
+          hf.IntermediateCA: true
+          hf.GenCRL: true
+          hf.Registrar.Attributes: "*"
+
+     - name: user
+       pass: userpw
+       type: user
+       affiliation: ""
+       maxenrollments: -1
+       attrs:
+          hf.Registrar.Roles: "user"
+          hf.Registrar.DelegateRoles: "user"
+          hf.Revoker: false
+          hf.IntermediateCA: true
+          hf.GenCRL: false
           hf.Registrar.Attributes: "*"
 
 #############################################################################
@@ -245,15 +271,15 @@ signing:
 csr:
    cn: ca.org3.jincor.com
    names:
-      - C: US
-        ST: "North Carolina"
-        L: "San Francisco"
-        O: org3.jincor.com
+      - C: CY
+        ST:
+        L: Larnaca
+        O: Jincor Limited
         OU:
    hosts:
      - ca.org3.jincor.com
    ca:
-      expiry: 131400h
+      expiry: 1314000h
       pathlength: 1
 
 #############################################################################

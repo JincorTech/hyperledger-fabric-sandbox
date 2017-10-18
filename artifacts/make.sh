@@ -9,6 +9,7 @@ pwd=$PWD
 JINCOR_NETWORK_TYPE=${JINCOR_NETWORK_TYPE:-base}
 
 cp configtx-$JINCOR_NETWORK_TYPE.yaml configtx.yaml
+cp cryptogen-$JINCOR_NETWORK_TYPE.yaml cryptogen.yaml
 
 function clean() {
     echo 'Clean folders...'
@@ -26,7 +27,8 @@ function buildByCryptogen() {
 function buildByFabricCa() {
     echo 'Make CA and certs by fabric-ca...'
     cd ./fabric-ca-generator
-    bash ./build-crypto-config.sh
+    bash ./start-fabric-ca-servers.sh del
+    bash ./build-crypto-config.sh yes
     cd ..
 }
 

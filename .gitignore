@@ -9,4 +9,6 @@
 
 /artifacts/tmp/*
 /artifacts/channels/*
+/artifacts/configtx.yaml
+/artifacts/cryptogen.yaml
 /artifacts/crypto-config/*

@@ -2,119 +2,150 @@
 
 [ -z "$1" ] && echo "Specify yes as argument" && exit
 
-# Make base folders
-mkdir -p ../crypto-config/ordererOrganizations/jincor.com/{ca,msp,orderers,tlsca,users}
-mkdir -p ../crypto-config/peerOrganizations/org{1,2,3}.jincor.com/{ca,msp,peers,tlsca,users}
+cd $(dirname $0)
 
-#declare -A orgsMspIds orgPeers
+. ../../scripts/shared/cert-tools.sh
 
-function domainName() {
-  dn=$(echo $home | sed -r 's;.*/(org[1-3].)?jincor\.com.*;\1jincor.com;')
-}
+PWD=`pwd`
 
-function fcl() {
-    home=$1
+function fclient() {
+    dn=$1
     cmd=$2
-    shift
-    shift
+    shift 2
 
-    domainName
+    clientSubPath=storage/client/$dn
+
+    localPath=${PWD}/$clientSubPath
+    localMspPath=$localPath/msp
 
     ../../scripts/containers-control.sh exec -u $(id -u) ca.$dn /usr/local/bin/fabric-ca-client $cmd \
-      --tls.certfiles=/opt/artifacts/fabric-ca-generator/storage/$dn/tls-ca.crt \
-      --tls.client.certfile=/opt/artifacts/fabric-ca-generator/storage/$dn/client.crt \
-      --tls.client.keyfile=/opt/artifacts/fabric-ca-generator/storage/$dn/client.key \
-      -H=/opt/artifacts/crypto-config/$home -d -m=$home $@
-
-    exit
+      --tls.certfiles=tlsca.pem \
+      --tls.client.certfile=tls-client.pem \
+      --tls.client.keyfile=tls-client.key \
+      -H=/opt/artifacts/fabric-ca-generator/$clientSubPath -d $@
 }
 
-function fcluc() {
-    home=$1
+function fclientuc() {
+    dn=$1
     cred=$2
     cmd=$3
-    shift
-    shift
-    shift
+    shift 3
 
-    domainName
-
-    fcl $home $cmd -u https://$cred@$dn:6054 $@
+    fclient $dn $cmd -u https://$cred@ca.$dn:7054 $@
 }
 
-function fclu() {
-    home=$1
+function fclientu() {
+    dn=$1
     cmd=$2
-    shift
-    shift
+    shift 2
 
-    domainName
-
-    fcl $home $cmd -u https://$dn:6054 $@
+    fclient $dn $cmd -u https://ca.$dn:7054 $@
 }
 
-function baseOrdererInit() {
-  wdir="../crypto-config/ordererOrganizations/jincor.com"
-
-  fcluc ordererOrganizations/jincor.com admin:adminpw getcacert --caname=ca.jincor.com
-  for org in org1 org2 org3; do
-      fcluc peerOrganizations/$org.jincor.com admin:adminpw getcacert --caname=ca.$org.jincor.com
-  done
-
-  fcluc ordererOrganizations/jincor.com/users admin:adminpw enroll --caname=ca.jincor.com -M Admin@jincor.com/msp \
-    --id.name=OrdererAdmin --id.type=orderer \
-    --csr.cn=OrdererAdmin --csr.hosts=orderer.jincor.com --csr.names=OU=,O=orderer.jincor.com,C=US,ST=NorthCarolina,L=SanFrancisco
-
-  makeTls bin/storage/jincor.com orderer.jincor.com
-
-  mkdir -p $wdir/orderers/orderer.jincor.com/{msp,tls}
-  mv -vf $wdir/users/Admin@jincor.com/msp/tlscacerts/* $wdir/users/Admin@jincor.com/msp/tlscacerts/tlsca.jincor.com-cert.pem
-  cp -fvr $wdir/users/Admin@jincor.com/msp/signcerts $wdir/users/Admin@jincor.com/msp/admincerts
-  cp -fvr $wdir/users/Admin@jincor.com/msp/ $wdir/orderers/orderer.jincor.com/
-  cp -fvr $wdir/orderers/orderer.jincor.com/msp/signcerts $wdir/orderers/orderer.jincor.com/msp/admincerts
-  mv -vf ca.crt $wdir/orderers/orderer.jincor.com/tls/ca.crt
-  cp -fv $wdir/users/Admin@jincor.com/msp/signcerts $wdir/users/Admin@jincor.com/msp/admincerts
-  mv -fv server.crt $wdir/orderers/orderer.jincor.com/tls/server.crt
-  mv -fv server.key $wdir/orderers/orderer.jincor.com/tls/server.key
-  cp -frv $wdir/orderers/orderer.jincor.com/msp $wdir
+function moveFiles() {
+    fromFolder=$1
+    toFolder=$2
+    mv -vf $(ls -1 $fromFolder | sed -r 's/ ?tls-client.key ?//' | xargs -i echo -n "$fromFolder/{} " ) $toFolder
 }
 
-function basePeersInit() {
-  for org in org1 org2 org3; do
-    fcluc peerOrganizations/$org.jincor.com/users admin:adminpw enroll --caname=ca.$org.jincor.com -M Admin@$org.jincor.com/msp \
-      --id.affiliation=$org --id.name=PeerAdmin --id.type=peer \
-      --csr.cn=PeerAdmin --csr.hosts=$org.jincor.com --csr.names=OU=,O=$org.jincor.com,C=US,ST=NorthCarolina,L=SanFrancisco
-
-    wdir="../crypto-config/peerOrganizations/$org.jincor.com"
-    mkdir -p $wdir/peers/peer{0,1}.$org.jincor.com/{msp,tls}
-    for peer in peer0 peer1; do
-
-      makeTls bin/storage/$org.jincor.com $peer.$org.jincor.com
-
-      mv  -vf $wdir/users/Admin@$org.jincor.com/msp/tlscacerts/* $wdir/users/Admin@$org.jincor.com/msp/tlscacerts/tlsca.$org.jincor.com-cert.pem
-      cp -vfr $wdir/users/Admin@$org.jincor.com/msp/ $wdir/peers/$peer.$org.jincor.com/
-      cp -vfr $wdir/users/Admin@$org.jincor.com/msp/signcerts $wdir/peers/$peer.$org.jincor.com/msp/admincerts
-      cp -vfr $wdir/users/Admin@$org.jincor.com/msp/signcerts $wdir/users/Admin@$org.jincor.com/msp/admincerts
-      mv -vf ca.crt $wdir/peers/$peer.$org.jincor.com/tls/ca.crt
-      mv -fv server.crt $wdir/peers/$peer.$org.jincor.com/tls/server.crt
-      mv -fv server.key $wdir/peers/$peer.$org.jincor.com/tls/server.key
-      cp -vfr $wdir/peers/$peer.$org.jincor.com/msp $wdir
+function changeExts() {
+    for f in $(ls -1 $1 | grep "$2\$"); do
+        mv -vf $1/$f $1/$(basename $f $2)$3
     done
-  done
-
-  for username in User1 User2; do
-   for org in org1 org2 org3; do
-    fclu peerOrganizations/$org.jincor.com/users register --caname=ca.$org.jincor.com -M Admin@$org.jincor.com/msp \
-      --id.secret userpw \
-      --id.affiliation=$org --id.name=$username --id.type=user --id.attrs='"hf.Registrar.Roles=user","hf.Revoker=true"' \
-      --csr.cn=$username --csr.hosts="*.$org".jincor.com --csr.names=OU=,O=$org.jincor.com,C=US,ST=NorthCarolina,L=SanFrancisco
-
-    fcluc peerOrganizations/$org.jincor.com/users $username:userpw enroll --caname=ca.$org.jincor.com -M $username@$org.jincor.com/msp \
-      --id.affiliation=$org --id.name=$username --id.type=user \
-      --csr.cn=$username --csr.hosts="*.$org".jincor.com --csr.names=OU=,O=$org.jincor.com,C=US,ST=NorthCarolina,L=SanFrancisco
-   done
-  done
 }
 
-baseOrdererInit
-basePeersInit
+
+
+function buildMsp() {
+   workPath=$1
+   nodesFolder=$2
+   prefixNodeName=$3
+   postfixNodeName=$4
+   nodeStartIndex=$5
+   nodeEndIndex=$6
+   userNames="Admin $7"
+
+   mkdir -p "$workPath/"{ca,msp,tlsca,users}
+   mkdir -p "$workPath/msp/"{admincerts,cacerts,tlscacerts}
+
+   fclientuc $postfixNodeName admin:adminpw getcacert --caname=ca.$postfixNodeName
+   moveFiles "$localMspPath/cacerts" "$workPath/ca"
+   cp "./storage/$postfixNodeName/tlsca.pem" "$workPath/tlsca/"
+
+   for userName in $userNames; do
+       userid="$userName@$postfixNodeName"
+
+       cdir="$workPath/users/$userName@$postfixNodeName"
+       mkdir -p "$cdir/msp/"{admincerts,cacerts,keystore,signcerts,tlscacerts}
+       mkdir -p "$cdir/tls"
+
+       userType="user"
+       creds="user:userpw"
+       if [ "$userName" == "Admin" ]; then
+          userType=$prefixNodeName
+          creds="admin:adminpw"
+       fi
+
+       fclientuc $postfixNodeName $creds enroll --caname=ca.$postfixNodeName \
+        --id.name=$userid --id.type=$userType \
+        --csr.cn=$userid --csr.hosts=$postfixNodeName --csr.names=OU=,O=JincorLimited,C=CY,ST=,L=Larnaca
+
+       moveFiles "$localMspPath/keystore" "$cdir/msp/keystore"
+       moveFiles "$localMspPath/signcerts" "$cdir/msp/signcerts"
+       cp -vfr "$cdir/msp/signcerts/"* "$cdir/msp/admincerts"
+       cp -vfr "$workPath/ca/"* "$cdir/msp/cacerts"
+       cp -vfr "$workPath/tlsca/"*.pem "$cdir/msp/tlscacerts"
+       cp -vfr "$workPath/tlsca/"*.pem "$cdir/tls/ca.pem"
+
+       makeCert "./storage/$postfixNodeName/tlsca.pem" "./storage/$postfixNodeName/tlsca.pem" "./storage/$postfixNodeName/tlsca.key" \
+          "$cdir/tls/server" "/CN=$userid"
+       changeExts $cdir/tls/ .pem .crt
+
+       if [ "$userName" == "Admin" ]; then
+         cp -vfr "$cdir/msp/admincerts" "$workPath/msp"
+         cp -vfr "$cdir/msp/tlscacerts" "$workPath/msp"
+         cp -vfr "$cdir/msp/cacerts" "$workPath/msp"
+       fi
+   done
+
+   mkdir -p "$workPath/$nodeFolder"
+
+   for nodeIndex in $(seq $nodeStartIndex $nodeEndIndex); do
+       nodeid="$prefixNodeName$nodeIndex.$postfixNodeName"
+
+       if [ "$nodeStartIndex" == "$nodeEndIndex" ]; then
+         nodeid="$prefixNodeName.$postfixNodeName"
+       fi
+
+       cdir="$workPath/$nodesFolder/$nodeid"
+       mkdir -p "$cdir"/msp/{admincerts,cacerts,keystore,signcerts,tlscacerts} "$cdir/tls"
+
+       fclientuc $postfixNodeName $prefixNodeName:${prefixNodeName}pw enroll --caname=ca.$postfixNodeName \
+        --id.name=$nodeid --id.type=$prefixNodeName \
+        --csr.cn=$nodeid --csr.hosts=$postfixNodeName --csr.names=OU=,O=JincorLimited,C=CY,ST=,L=Larnaca
+
+       moveFiles "$localMspPath/keystore" "$cdir/msp/keystore"
+       moveFiles "$localMspPath/signcerts" "$cdir/msp/signcerts"
+
+       cp -vfr "$workPath/users/Admin@$postfixNodeName/msp/signcerts/"* "$cdir/msp/admincerts"
+       cp -vfr "$workPath/ca/"* "$cdir/msp/cacerts"
+       cp -vfr "$workPath/tlsca/"*.pem "$cdir/msp/tlscacerts"
+
+       cp -vfr "$workPath/tlsca/"*.pem "$cdir/tls/ca.pem"
+       makeCert "./storage/$postfixNodeName/tlsca.pem" "./storage/$postfixNodeName/tlsca.pem" "./storage/$postfixNodeName/tlsca.key" \
+          "$cdir/tls/server" "/CN=$nodeid"
+       changeExts $cdir/tls/ .pem .crt
+
+   done
+}
+
+orderersCount="0"
+if [ "$JINCOR_NETWORK_TYPE" == "orderers" ]; then
+  orderersCount="2"
+fi
+
+buildMsp "../crypto-config/ordererOrganizations/jincor.com" "orderers" "orderer" "jincor.com" 0 $orderersCount ""
+
+buildMsp "../crypto-config/peerOrganizations/org1.jincor.com" "peers" "peer" "org1.jincor.com" 0 1 "User1 User2"
+buildMsp "../crypto-config/peerOrganizations/org2.jincor.com" "peers" "peer" "org2.jincor.com" 0 1 "User1 User2"
+buildMsp "../crypto-config/peerOrganizations/org3.jincor.com" "peers" "peer" "org3.jincor.com" 0 1 "User1 User2"

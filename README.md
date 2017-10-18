@@ -12,7 +12,9 @@
 
 ## Installation
 
-Go to the `scripts` and launch `./init.sh`. Magic includes: Install fabric tools, fetch docker images, make msp & fabric blocks & fabric channels, join channels to peer and anchor them, build and install sample chaincodes. That's all.
+Go to the `scripts` and launch `./init.sh` (`./init.sh fabric-ca` it will generate MSPs with usage Fabric-CA).
+Magic includes: Install fabric tools, fetch docker images, make msp & fabric blocks & fabric channels,
+join channels to peer and anchor them, build and install sample chaincodes. That's all.
 
 
 ## Fabric containers controlling
@@ -36,3 +38,8 @@ All this commands should be launch in docker cli.jincor.com container.
 
 Look at `artifacts/add-org.sh`.
 To join Org3 to `org1` and `org2` channels use `./add-org.sh org3 Org3MSP org1 org1; ./add-org.sh org3 Org3MSP org2 org2`
+
+
+## Kafka mode
+
+To run orderers in `KAFKA` mode specify environment: `export JINCOR_NETWORK_TYPE=orderers`, and run `./init.sh` (also you would use `fabric-ca` argument)

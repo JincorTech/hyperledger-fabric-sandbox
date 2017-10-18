@@ -15,7 +15,7 @@ services:
       - CORE_PEER_TLS_CERT_FILE=/etc/hyperledger/crypto/peer/tls/server.crt
       - CORE_PEER_TLS_KEY_FILE=/etc/hyperledger/crypto/peer/tls/server.key
     working_dir: /opt/gopath/src/github.com/hyperledger/fabric/peer
-    command: peer node start --logging-level=info
+    command: peer node start --peer-defaultchain=false
     # --peer-chaincodedev
     volumes:
         - /var/run/:/host/var/run/
