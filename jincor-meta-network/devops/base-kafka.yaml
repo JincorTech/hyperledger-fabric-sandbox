@@ -11,7 +11,8 @@ services:
       - KAFKA_MIN_INSYNC_REPLICAS=2
       - KAFKA_DEFAULT_REPLICATION_FACTOR=3
       - KAFKA_ZOOKEEPER_CONNECT=zookeeper0.jincor.com:2181,zookeeper1.jincor.com:2181,zookeeper2.jincor.com:2181
-    #ports:
-    #  - 9092
+    ports:
+      - 9092
+    mem_limit: 768m
     networks:
-      - net
+      - jincormetanetwork

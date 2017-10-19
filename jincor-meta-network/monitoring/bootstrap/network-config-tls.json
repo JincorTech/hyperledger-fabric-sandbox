@@ -1,0 +1,42 @@
+{
+	"network-config": {
+		"orderer": [
+		    {
+			    "url": "grpcs://172.124.0.20:7050",
+			    "server-hostname": "orderer0.orderer.jincor.com",
+			    "tls_cacerts": "/bootstrap/crypto-config/ordererOrganizations/orderer.jincor.com/orderers/orderer0.orderer.jincor.com/tls/ca.crt"
+		    },
+		    {
+			    "url": "grpcs://172.124.0.21:7050",
+			    "server-hostname": "orderer1.orderer.jincor.com",
+			    "tls_cacerts": "/bootstrap/crypto-config/ordererOrganizations/orderer.jincor.com/orderers/orderer1.orderer.jincor.com/tls/ca.crt"
+		    },
+		    {
+			    "url": "grpcs://172.124.0.22:7050",
+			    "server-hostname": "orderer2.orderer.jincor.com",
+			    "tls_cacerts": "/bootstrap/crypto-config/ordererOrganizations/orderer.jincor.com/orderers/orderer2.orderer.jincor.com/tls/ca.crt"
+		    }
+		],
+		"org1": {
+			"name": "JincorNetwork",
+			"mspid": "JincorNetwork",
+			"ca": "https://172.124.0.11:7054",
+			"peer1": {
+				"requests": "grpcs://172.124.0.30:7051",
+				"events": "grpcs://172.124.0.30:7053",
+				"server-hostname": "peer0.network.jincor.com",
+				"tls_cacerts": "/bootstrap/crypto-config/peerOrganizations/network.jincor.com/peers/peer0.network.jincor.com/tls/ca.crt"
+			},
+			"peer2": {
+				"requests": "grpcs://172.124.0.31:7051",
+				"events": "grpcs://172.124.0.31:7053",
+				"server-hostname": "peer1.network.jincor.com",
+				"tls_cacerts": "/bootstrap/crypto-config/peerOrganizations/network.jincor.com/peers/peer1.network.jincor.com/tls/ca.crt"
+			},
+			"admin": {
+				"key": "/bootstrap/crypto-config/peerOrganizations/network.jincor.com/users/Admin@network.jincor.com/msp/keystore",
+				"cert": "/bootstrap/crypto-config/peerOrganizations/network.jincor.com/users/Admin@network.jincor.com/msp/admincerts"
+			}
+		}
+	}
+}

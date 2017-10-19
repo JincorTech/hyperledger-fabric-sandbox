@@ -1,0 +1,22 @@
+{
+   "host":"localhost",
+   "port":"8080",
+   "channelsList": ["jincormetanet"],
+   "GOPATH":"/tmp/",
+   "keyValueStore":"./kvs/",
+   "eventWaitTime":"30000",
+   "enableTls":false,
+   "users":[
+      {
+         "username":"admin",
+         "secret":"adminpw"
+      }
+   ],
+   "mysql":{
+      "host":"blkexplorer.mysql.jincor.com",
+      "port":"3306",
+      "database":"fabricexplorer",
+      "username":"root",
+      "passwd":"root"
+   }
+}

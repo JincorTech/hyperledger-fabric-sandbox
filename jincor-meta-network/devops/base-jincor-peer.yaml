@@ -11,15 +11,16 @@ services:
       - CORE_PEER_GOSSIP_ORGLEADER=false
       # for non-mutual tls
       - CORE_PEER_GOSSIP_SKIPHANDSHAKE=true
-      - CORE_PEER_TLS_ENABLED=true
+      - CORE_PEER_TLS_ENABLED=${TLS_ENABLED}
       - CORE_PEER_LOCALMSPID=JincorNetwork
       - CORE_PEER_MSPCONFIGPATH=/etc/hyperledger/crypto/peer/msp
       - CORE_PEER_TLS_ROOTCERT_FILE=/etc/hyperledger/crypto/peer/tls/ca.crt
       - CORE_PEER_TLS_CERT_FILE=/etc/hyperledger/crypto/peer/tls/server.crt
       - CORE_PEER_TLS_KEY_FILE=/etc/hyperledger/crypto/peer/tls/server.key
+    mem_limit: 512m
     working_dir: /opt/gopath/src/github.com/hyperledger/fabric/peer
-    command: peer node start --peer-defaultchain=false
+    command: sh -c "sleep 4; peer node start --peer-defaultchain=false"
     volumes:
         - /var/run/:/host/var/run
     networks:
-      - net
+      - jincormetanetwork

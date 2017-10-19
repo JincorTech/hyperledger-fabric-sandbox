@@ -10,14 +10,15 @@ services:
       - ORDERER_GENERAL_GENESISFILE=/var/hyperledger/orderer/orderer.genesis.block
       - ORDERER_KAFKA_RETRY_PERIOD=3s
       - ORDERER_KAFKA_RETRY_STOP=10s
-      - ORDERER_KAFKA_VERBOSE=true
+      - ORDERER_KAFKA_VERBOSE=false
       - ORDERER_GENERAL_LOCALMSPID=JincorOrderer
       - ORDERER_GENERAL_LOCALMSPDIR=/etc/hyperledger/crypto/orderer/msp
-      - ORDERER_GENERAL_TLS_ENABLED=true
+      - ORDERER_GENERAL_TLS_ENABLED=${TLS_ENABLED}
       - ORDERER_GENERAL_TLS_PRIVATEKEY=/etc/hyperledger/crypto/orderer/tls/server.key
       - ORDERER_GENERAL_TLS_CERTIFICATE=/etc/hyperledger/crypto/orderer/tls/server.crt
       - ORDERER_GENERAL_TLS_ROOTCAS=[/etc/hyperledger/crypto/orderer/tls/ca.crt,/etc/hyperledger/crypto/network.jincor.com/tlscacerts/tlsca.network.jincor.com-cert.pem]
+    mem_limit: 512m
     working_dir: /opt/gopath/src/github.com/hyperledger/fabric/orderers
-    command: orderer
+    command: sh -c "sleep 2; orderer"
     networks:
-      - net
+      - jincormetanetwork

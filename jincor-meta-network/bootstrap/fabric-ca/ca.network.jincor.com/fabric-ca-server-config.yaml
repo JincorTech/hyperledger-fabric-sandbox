@@ -57,12 +57,12 @@ crlsizelimit: 512000
 #############################################################################
 tls:
   # Enable TLS (default: false)
-  enabled: true
+  enabled: false
   # TLS for the server's listening port
   certfile: tlsserver-cert.pem
   keyfile: tlsserver-key.pem
   clientauth:
-    type: requireanyclientcert
+    type: noclientcert #requireanyclientcert
     certfiles: tlsca-cert.pem
 
 #############################################################################

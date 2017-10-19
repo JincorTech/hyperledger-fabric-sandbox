@@ -1,7 +1,14 @@
 version: '2'
 
 networks:
-  net:
+  jincormetanetwork:
+    external: true
+    #driver: bridge
+    #ipam:
+    #  driver: default
+    #  config:
+    #    - subnet: 172.124.0.0/24
+    #      gateway: 172.124.0.1
 
 services:
   cli.jincor.com:
@@ -15,7 +22,7 @@ services:
       - CORE_LOGGING_LEVEL=debug
       - CORE_PEER_ID=cli
       - CORE_PEER_ADDRESS=peer0.network.jincor.com:7051
-      - CORE_PEER_TLS_ENABLED=true
+      - CORE_PEER_TLS_ENABLED=${TLS_ENABLED}
       - CORE_PEER_TLS_ROOTCERT_FILE=/opt/sandbox/crypto-config/peerOrganizations/network.jincor.com/peers/peer0.network.jincor.com/tls/ca.crt
       - CORE_PEER_TLS_CERT_FILE=/opt/sandbox/crypto-config/peerOrganizations/network.jincor.com/peers/peer0.network.jincor.com/tls/server.crt
       - CORE_PEER_TLS_KEY_FILE=/opt/sandbox/crypto-config/peerOrganizations/network.jincor.com/peers/peer0.network.jincor.com/tls/server.key
@@ -27,7 +34,7 @@ services:
       - ../chaincode/src/github.com/JincorTech:/opt/gopath/src/github.com/JincorTech/
       - ../bootstrap/:/opt/sandbox/
     networks:
-      - net
+      - jincormetanetwork
 
   zookeeper0.jincor.com:
     container_name: zookeeper0.jincor.com
@@ -108,8 +115,11 @@ services:
       service: base-jincor-ca
     volumes:
       - ../bootstrap/fabric-ca/ca.orderer.jincor.com/:/etc/hyperledger/fabric-ca-server/
+    networks:
+      jincormetanetwork:
+        ipv4_address: 172.124.0.10
     ports:
-      - 7055:7054
+      - 7054
 
   ca.network.jincor.com:
     container_name: ca.network.jincor.com
@@ -118,8 +128,11 @@ services:
       service: base-jincor-ca
     volumes:
       - ../bootstrap/fabric-ca/ca.network.jincor.com/:/etc/hyperledger/fabric-ca-server/
+    networks:
+      jincormetanetwork:
+        ipv4_address: 172.124.0.11
     ports:
-      - 7054:7054
+      - 7054
 
   orderer0.orderer.jincor.com:
     container_name: orderer0.orderer.jincor.com
@@ -130,8 +143,11 @@ services:
       - ../bootstrap/crypto-config/ordererOrganizations/orderer.jincor.com/orderers/orderer0.orderer.jincor.com/:/etc/hyperledger/crypto/orderer/
       - ../bootstrap/crypto-config/peerOrganizations/network.jincor.com/msp/:/etc/hyperledger/crypto/network.jincor.com/
       - ../bootstrap/channels/orderer/:/var/hyperledger/orderer/
+    networks:
+      jincormetanetwork:
+        ipv4_address: 172.124.0.20
     ports:
-      - 7050:7050
+      - 7050
     depends_on:
       - kafka0.jincor.com
       - kafka1.jincor.com
@@ -148,7 +164,10 @@ services:
       - ../bootstrap/crypto-config/peerOrganizations/network.jincor.com/msp/:/etc/hyperledger/crypto/network.jincor.com/
       - ../bootstrap/channels/orderer/:/var/hyperledger/orderer/
     ports:
-      - 8050:7050
+      - 7050
+    networks:
+      jincormetanetwork:
+        ipv4_address: 172.124.0.21
     depends_on:
       - kafka0.jincor.com
       - kafka1.jincor.com
@@ -164,8 +183,11 @@ services:
       - ../bootstrap/crypto-config/ordererOrganizations/orderer.jincor.com/orderers/orderer2.orderer.jincor.com/:/etc/hyperledger/crypto/orderer/
       - ../bootstrap/crypto-config/peerOrganizations/network.jincor.com/msp/:/etc/hyperledger/crypto/network.jincor.com/
       - ../bootstrap/channels/orderer/:/var/hyperledger/orderer/
+    networks:
+      jincormetanetwork:
+        ipv4_address: 172.124.0.22
     ports:
-      - 9050:7050
+      - 7050
     depends_on:
       - kafka0.jincor.com
       - kafka1.jincor.com
@@ -182,9 +204,12 @@ services:
       - CORE_PEER_ADDRESS=peer0.network.jincor.com:7051
       - CORE_PEER_GOSSIP_EXTERNALENDPOINT=peer0.network.jincor.com:7051
       - CORE_PEER_GOSSIP_BOOTSTRAP=peer0.network.jincor.com:7051
+    networks:
+      jincormetanetwork:
+        ipv4_address: 172.124.0.30
     ports:
-      - 7051:7051
-      - 7053:7053
+      - 7051
+      - 7053
     depends_on:
       - orderer0.orderer.jincor.com
       - orderer1.orderer.jincor.com
@@ -202,9 +227,12 @@ services:
       - CORE_PEER_ADDRESS=peer1.network.jincor.com:7051
       - CORE_PEER_GOSSIP_EXTERNALENDPOINT=peer1.network.jincor.com:7051
       - CORE_PEER_GOSSIP_BOOTSTRAP=peer0.network.jincor.com:7051
+    networks:
+      jincormetanetwork:
+        ipv4_address: 172.124.0.31
     ports:
-      - 7056:7051
-      - 7058:7053
+      - 7051
+      - 7053
     depends_on:
       - peer0.network.jincor.com
     volumes:

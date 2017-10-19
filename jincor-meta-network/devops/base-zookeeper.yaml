@@ -5,9 +5,10 @@ services:
     restart: always
     environment:
       - ZOO_SERVERS=server.1=zookeeper0.jincor.com:2888:3888 server.2=zookeeper1.jincor.com:2888:3888 server.3=zookeeper2.jincor.com:2888:3888
-    #ports:
-    #  - 2181
-    #  - 2888
-    #  - 3888
+    ports:
+      - 2181
+      - 2888
+      - 3888
+    mem_limit: 512m
     networks:
-      - net
+      - jincormetanetwork
