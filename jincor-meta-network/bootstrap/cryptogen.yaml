@@ -1,0 +1,58 @@
+# ---------------------------------------------------------------------------
+# "OrdererOrgs" - Definition of organizations managing orderer nodes
+# ---------------------------------------------------------------------------
+OrdererOrgs:
+  # ---------------------------------------------------------------------------
+  # Orderer
+  # ---------------------------------------------------------------------------
+  - Name: JincorOrderer
+    Domain: orderer.jincor.com
+
+    CA:
+        Country: CY
+        Organization: Jincor Limited
+        Locality: Larnaca
+
+    # ---------------------------------------------------------------------------
+    # "Specs" - See PeerOrgs below for complete description
+    # ---------------------------------------------------------------------------
+    #Specs:
+    #  - Hostname: orderer0
+
+    Template:
+      Count: 3
+
+# ---------------------------------------------------------------------------
+# "PeerOrgs" - Definition of organizations managing peer nodes
+# ---------------------------------------------------------------------------
+PeerOrgs:
+  # ---------------------------------------------------------------------------
+  # JincorNetwork
+  # ---------------------------------------------------------------------------
+  - Name: JincorNetwork
+    Domain: network.jincor.com
+
+    # ---------------------------------------------------------------------------
+    # "CA"
+    # ---------------------------------------------------------------------------
+    # Uncomment this section to enable the explicit definition of the CA for this
+    # organization.  This entry is a Spec.  See "Specs" section below for details.
+    # ---------------------------------------------------------------------------
+    CA:
+       Country: CY
+       Organization: Jincor Limited
+       Locality: Larnaca
+       Hostname: ca # implicitly ca....jincor.com
+
+    Template:
+      Count: 2
+      #SANS:
+      #  - "localhost"
+
+    # ---------------------------------------------------------------------------
+    # "Users"
+    # ---------------------------------------------------------------------------
+    # Count: The number of user accounts _in addition_ to Admin
+    # ---------------------------------------------------------------------------
+    Users:
+      Count: 0

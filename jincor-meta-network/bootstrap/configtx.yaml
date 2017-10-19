@@ -1,0 +1,111 @@
+################################################################################
+#
+#   Profile
+#
+#   - Different configuration profiles may be encoded here to be specified
+#   as parameters to the configtxgen tool
+#
+################################################################################
+Profiles:
+    JincorOrdererGenesis:
+        Orderer:
+            <<: *OrdererDefaults
+            Organizations:
+                - *JincorOrderer
+        Consortiums:
+            CommonConsortium:
+                Organizations:
+                    - *JincorNetwork
+
+    JincorNetworkChannel:
+        Consortium: CommonConsortium
+        Application:
+            <<: *ApplicationDefaults
+            Organizations:
+                - *JincorNetwork
+
+################################################################################
+#
+#   Section: Organizations
+#
+#   - This section defines the different organizational identities which will
+#   be referenced later in the configuration.
+#
+################################################################################
+Organizations:
+    - &JincorOrderer
+        Name: JincorOrderer
+        ID: JincorOrderer
+        MSPDir: crypto-config/ordererOrganizations/orderer.jincor.com/msp
+        AdminPrincipal: Role.ADMIN
+
+    - &JincorNetwork
+        Name: JincorNetwork
+        ID: JincorNetwork
+        MSPDir: crypto-config/peerOrganizations/network.jincor.com/msp
+        AdminPrincipal: Role.ADMIN
+
+        AnchorPeers:
+            - Host: peer0.network.jincor.com
+              Port: 7051
+
+################################################################################
+#
+#   SECTION: Orderer
+#
+#   - This section defines the values to encode into a config transaction or
+#   genesis block for orderer related parameters
+#
+################################################################################
+Orderer: &OrdererDefaults
+
+    OrdererType: kafka
+
+    Addresses:
+        - orderer0.orderer.jincor.com:7050
+        - orderer1.orderer.jincor.com:7050
+        - orderer2.orderer.jincor.com:7050
+
+    # Batch Timeout: The amount of time to wait before creating a batch
+    BatchTimeout: 2s
+
+    # Batch Size: Controls the number of messages batched into a block
+    BatchSize:
+
+        # Max Message Count: The maximum number of messages to permit in a batch
+        MaxMessageCount: 10
+
+        # Absolute Max Bytes: The absolute maximum number of bytes allowed for
+        # the serialized messages in a batch.
+        AbsoluteMaxBytes: 98 MB
+
+        # Preferred Max Bytes: The preferred maximum number of bytes allowed for
+        # the serialized messages in a batch. A message larger than the preferred
+        # max bytes will result in a batch larger than preferred max bytes.
+        PreferredMaxBytes: 512 KB
+
+    Kafka:
+        # Brokers: A list of Kafka brokers to which the orderer connects
+        # NOTE: Use IP:port notation
+        Brokers:
+            - kafka0.jincor.com:9092
+            - kafka1.jincor.com:9092
+            - kafka2.jincor.com:9092
+            - kafka3.jincor.com:9092
+
+
+    # Organizations is the list of orgs which are defined as participants on
+    # the orderer side of the network
+    Organizations:
+
+################################################################################
+#
+#   SECTION: Application
+#
+#   - This section defines the values to encode into a config transaction or
+#   genesis block for application related parameters
+#
+################################################################################
+Application: &ApplicationDefaults
+
+    Organizations:

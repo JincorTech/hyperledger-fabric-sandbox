@@ -1,0 +1,211 @@
+version: '2'
+
+networks:
+  net:
+
+services:
+  cli.jincor.com:
+    container_name: cli.jincor.com
+    image: registry.jincor.com/hyperledger/fabric-tools:latest
+    tty: true
+    environment:
+      - GOPATH=/opt/gopath
+      - CORE_VM_ENDPOINT=unix:///host/var/run/docker.sock
+      - CORE_VM_DOCKER_HOSTCONFIG_NETWORKMODE=jincormeta_net
+      - CORE_LOGGING_LEVEL=debug
+      - CORE_PEER_ID=cli
+      - CORE_PEER_ADDRESS=peer0.network.jincor.com:7051
+      - CORE_PEER_TLS_ENABLED=true
+      - CORE_PEER_TLS_ROOTCERT_FILE=/opt/sandbox/crypto-config/peerOrganizations/network.jincor.com/peers/peer0.network.jincor.com/tls/ca.crt
+      - CORE_PEER_TLS_CERT_FILE=/opt/sandbox/crypto-config/peerOrganizations/network.jincor.com/peers/peer0.network.jincor.com/tls/server.crt
+      - CORE_PEER_TLS_KEY_FILE=/opt/sandbox/crypto-config/peerOrganizations/network.jincor.com/peers/peer0.network.jincor.com/tls/server.key
+      - CORE_PEER_MSPCONFIGPATH=/opt/sandbox/crypto-config/peerOrganizations/network.jincor.com/users/Admin@network.jincor.com/msp
+    working_dir: /opt/gopath/src/
+    command: /bin/bash
+    volumes:
+      - /var/run/:/host/var/run/
+      - ../chaincode/src/github.com/JincorTech:/opt/gopath/src/github.com/JincorTech/
+      - ../bootstrap/:/opt/sandbox/
+    networks:
+      - net
+
+  zookeeper0.jincor.com:
+    container_name: zookeeper0.jincor.com
+    extends:
+      file: base-zookeeper.yaml
+      service: base-zookeeper
+    environment:
+      - ZOO_MY_ID=1
+
+  zookeeper1.jincor.com:
+    container_name: zookeeper1.jincor.com
+    extends:
+      file: base-zookeeper.yaml
+      service: base-zookeeper
+    environment:
+      - ZOO_MY_ID=2
+
+  zookeeper2.jincor.com:
+    container_name: zookeeper2.jincor.com
+    extends:
+      file: base-zookeeper.yaml
+      service: base-zookeeper
+    environment:
+      - ZOO_MY_ID=3
+
+  kafka0.jincor.com:
+    container_name: kafka0.jincor.com
+    extends:
+      file: base-kafka.yaml
+      service: base-kafka
+    environment:
+      - KAFKA_BROKER_ID=1
+    depends_on:
+      - zookeeper0.jincor.com
+      - zookeeper1.jincor.com
+      - zookeeper2.jincor.com
+
+  kafka1.jincor.com:
+    container_name: kafka1.jincor.com
+    extends:
+      file: base-kafka.yaml
+      service: base-kafka
+    environment:
+      - KAFKA_BROKER_ID=2
+    depends_on:
+      - zookeeper0.jincor.com
+      - zookeeper1.jincor.com
+      - zookeeper2.jincor.com
+
+  kafka2.jincor.com:
+    container_name: kafka2.jincor.com
+    extends:
+      file: base-kafka.yaml
+      service: base-kafka
+    environment:
+      - KAFKA_BROKER_ID=3
+    depends_on:
+      - zookeeper0.jincor.com
+      - zookeeper1.jincor.com
+      - zookeeper2.jincor.com
+
+  kafka3.jincor.com:
+    container_name: kafka3.jincor.com
+    extends:
+      file: base-kafka.yaml
+      service: base-kafka
+    environment:
+      - KAFKA_BROKER_ID=4
+    depends_on:
+      - zookeeper0.jincor.com
+      - zookeeper1.jincor.com
+      - zookeeper2.jincor.com
+
+  ca.orderer.jincor.com:
+    container_name: ca.orderer.jincor.com
+    extends:
+      file: base-jincor-ca.yaml
+      service: base-jincor-ca
+    volumes:
+      - ../bootstrap/fabric-ca/ca.orderer.jincor.com/:/etc/hyperledger/fabric-ca-server/
+    ports:
+      - 7055:7054
+
+  ca.network.jincor.com:
+    container_name: ca.network.jincor.com
+    extends:
+      file: base-jincor-ca.yaml
+      service: base-jincor-ca
+    volumes:
+      - ../bootstrap/fabric-ca/ca.network.jincor.com/:/etc/hyperledger/fabric-ca-server/
+    ports:
+      - 7054:7054
+
+  orderer0.orderer.jincor.com:
+    container_name: orderer0.orderer.jincor.com
+    extends:
+      file: base-jincor-orderer.yaml
+      service: base-jincor-orderer
+    volumes:
+      - ../bootstrap/crypto-config/ordererOrganizations/orderer.jincor.com/orderers/orderer0.orderer.jincor.com/:/etc/hyperledger/crypto/orderer/
+      - ../bootstrap/crypto-config/peerOrganizations/network.jincor.com/msp/:/etc/hyperledger/crypto/network.jincor.com/
+      - ../bootstrap/channels/orderer/:/var/hyperledger/orderer/
+    ports:
+      - 7050:7050
+    depends_on:
+      - kafka0.jincor.com
+      - kafka1.jincor.com
+      - kafka2.jincor.com
+      - kafka3.jincor.com
+
+  orderer1.orderer.jincor.com:
+    container_name: orderer1.orderer.jincor.com
+    extends:
+      file: base-jincor-orderer.yaml
+      service: base-jincor-orderer
+    volumes:
+      - ../bootstrap/crypto-config/ordererOrganizations/orderer.jincor.com/orderers/orderer1.orderer.jincor.com/:/etc/hyperledger/crypto/orderer/
+      - ../bootstrap/crypto-config/peerOrganizations/network.jincor.com/msp/:/etc/hyperledger/crypto/network.jincor.com/
+      - ../bootstrap/channels/orderer/:/var/hyperledger/orderer/
+    ports:
+      - 8050:7050
+    depends_on:
+      - kafka0.jincor.com
+      - kafka1.jincor.com
+      - kafka2.jincor.com
+      - kafka3.jincor.com
+
+  orderer2.orderer.jincor.com:
+    container_name: orderer2.orderer.jincor.com
+    extends:
+      file: base-jincor-orderer.yaml
+      service: base-jincor-orderer
+    volumes:
+      - ../bootstrap/crypto-config/ordererOrganizations/orderer.jincor.com/orderers/orderer2.orderer.jincor.com/:/etc/hyperledger/crypto/orderer/
+      - ../bootstrap/crypto-config/peerOrganizations/network.jincor.com/msp/:/etc/hyperledger/crypto/network.jincor.com/
+      - ../bootstrap/channels/orderer/:/var/hyperledger/orderer/
+    ports:
+      - 9050:7050
+    depends_on:
+      - kafka0.jincor.com
+      - kafka1.jincor.com
+      - kafka2.jincor.com
+      - kafka3.jincor.com
+
+  peer0.network.jincor.com:
+    container_name: peer0.network.jincor.com
+    extends:
+      file: base-jincor-peer.yaml
+      service: base-jincor-peer
+    environment:
+      - CORE_PEER_ID=peer0.network.jincor.com
+      - CORE_PEER_ADDRESS=peer0.network.jincor.com:7051
+      - CORE_PEER_GOSSIP_EXTERNALENDPOINT=peer0.network.jincor.com:7051
+      - CORE_PEER_GOSSIP_BOOTSTRAP=peer0.network.jincor.com:7051
+    ports:
+      - 7051:7051
+      - 7053:7053
+    depends_on:
+      - orderer0.orderer.jincor.com
+      - orderer1.orderer.jincor.com
+      - orderer2.orderer.jincor.com
+    volumes:
+        - ../bootstrap/crypto-config/peerOrganizations/network.jincor.com/peers/peer0.network.jincor.com:/etc/hyperledger/crypto/peer
+
+  peer1.network.jincor.com:
+    container_name: peer1.network.jincor.com
+    extends:
+      file: base-jincor-peer.yaml
+      service: base-jincor-peer
+    environment:
+      - CORE_PEER_ID=peer1.network.jincor.com
+      - CORE_PEER_ADDRESS=peer1.network.jincor.com:7051
+      - CORE_PEER_GOSSIP_EXTERNALENDPOINT=peer1.network.jincor.com:7051
+      - CORE_PEER_GOSSIP_BOOTSTRAP=peer0.network.jincor.com:7051
+    ports:
+      - 7056:7051
+      - 7058:7053
+    depends_on:
+      - peer0.network.jincor.com
+    volumes:
+        - ../bootstrap/crypto-config/peerOrganizations/network.jincor.com/peers/peer1.network.jincor.com:/etc/hyperledger/crypto/peer

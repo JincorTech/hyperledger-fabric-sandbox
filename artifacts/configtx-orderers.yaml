@@ -146,8 +146,8 @@ Orderer: &OrdererDefaults
 
     Addresses:
         - orderer0.jincor.com:7050
-        - orderer1.jincor.com:8050
-        - orderer2.jincor.com:9050
+        - orderer1.jincor.com:7050
+        - orderer2.jincor.com:7050
 
     # Batch Timeout: The amount of time to wait before creating a batch
     BatchTimeout: 2s
