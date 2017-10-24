@@ -118,8 +118,8 @@ services:
     networks:
       jincormetanetwork:
         ipv4_address: 172.124.0.10
-    ports:
-      - 7054
+    #ports:
+    #  - 7055:7054
 
   ca.network.jincor.com:
     container_name: ca.network.jincor.com
@@ -131,8 +131,8 @@ services:
     networks:
       jincormetanetwork:
         ipv4_address: 172.124.0.11
-    ports:
-      - 7054
+    #ports:
+    #  - 7054:7054
 
   orderer0.orderer.jincor.com:
     container_name: orderer0.orderer.jincor.com
@@ -146,8 +146,8 @@ services:
     networks:
       jincormetanetwork:
         ipv4_address: 172.124.0.20
-    ports:
-      - 7050
+    #ports:
+    #  - 7050:7050
     depends_on:
       - kafka0.jincor.com
       - kafka1.jincor.com
@@ -163,8 +163,8 @@ services:
       - ../bootstrap/crypto-config/ordererOrganizations/orderer.jincor.com/orderers/orderer1.orderer.jincor.com/:/etc/hyperledger/crypto/orderer/
       - ../bootstrap/crypto-config/peerOrganizations/network.jincor.com/msp/:/etc/hyperledger/crypto/network.jincor.com/
       - ../bootstrap/channels/orderer/:/var/hyperledger/orderer/
-    ports:
-      - 7050
+    #ports:
+    #  - 8050:7050
     networks:
       jincormetanetwork:
         ipv4_address: 172.124.0.21
@@ -186,8 +186,8 @@ services:
     networks:
       jincormetanetwork:
         ipv4_address: 172.124.0.22
-    ports:
-      - 7050
+    #ports:
+    #  - 9050:7050
     depends_on:
       - kafka0.jincor.com
       - kafka1.jincor.com
@@ -207,9 +207,9 @@ services:
     networks:
       jincormetanetwork:
         ipv4_address: 172.124.0.30
-    ports:
-      - 7051
-      - 7053
+    #ports:
+    #  - 7051:7051
+    #  - 7053:7053
     depends_on:
       - orderer0.orderer.jincor.com
       - orderer1.orderer.jincor.com
@@ -230,10 +230,13 @@ services:
     networks:
       jincormetanetwork:
         ipv4_address: 172.124.0.31
-    ports:
-      - 7051
-      - 7053
+    #ports:
+    #  - 7056:7051
+    #  - 7058:7053
     depends_on:
       - peer0.network.jincor.com
+      - orderer0.orderer.jincor.com
+      - orderer1.orderer.jincor.com
+      - orderer2.orderer.jincor.com
     volumes:
         - ../bootstrap/crypto-config/peerOrganizations/network.jincor.com/peers/peer1.network.jincor.com:/etc/hyperledger/crypto/peer
