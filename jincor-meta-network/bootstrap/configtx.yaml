@@ -15,6 +15,7 @@ Profiles:
         Consortiums:
             CommonConsortium:
                 Organizations:
+                    - *JincorOrderer
                     - *JincorNetwork
 
     JincorNetworkChannel:

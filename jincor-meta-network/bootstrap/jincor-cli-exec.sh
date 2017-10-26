@@ -10,7 +10,7 @@ export CORE_PEER_ADDRESS=$peerHost:7051
 
 shift
 
-if [ "${CORE_PEER_TLS_ENABLED}" == "true" ]; then
+if [ "${CORE_PEER_TLS_ENABLED}" = "true" ]; then
   peer $@ --tls --cafile $ORDERER_CA
 else
   peer $@

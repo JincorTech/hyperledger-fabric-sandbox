@@ -68,22 +68,23 @@ function initJincorNetworkChannel() {
 
   local orderer="-o orderer0.orderer.jincor.com:7050"
   local configDir="/opt/sandbox/channels"
+  local channelName="jincormetanet"
 
-  execCliContainer "peer0.network.jincor.com" channel create -c jincormetanet -f $configDir/JincorNetworkChannel.tx $orderer
-  execCliContainer "peer0.network.jincor.com" channel fetch -c jincormetanet  $orderer config $configDir/JincorNetworkChannel.block
+  execCliContainer "peer0.network.jincor.com" channel create -c $channelName -f $configDir/JincorNetworkChannel.tx $orderer
+  execCliContainer "peer0.network.jincor.com" channel fetch -c $channelName $orderer config $configDir/JincorNetworkChannel.block
 
   for peer in peer0 peer1; do
     execCliContainer "$peer.network.jincor.com" channel join -b $configDir/JincorNetworkChannel.block $orderer
   done
 
-  execCliContainer "peer0.network.jincor.com" channel update -c jincormetanet -f $configDir/JincorNetworkChannelAnchors.tx $orderer
+  execCliContainer "peer0.network.jincor.com" channel update -c $channelName -f $configDir/JincorNetworkChannelAnchors.tx $orderer
 
   echo "----------------------- jincormetanet is ready! ---------------------------------"
 }
 
-if [ "$1" == "config" ]; then
+if [ "$1" = "config" ]; then
   initConfigs
-elif [ "$1" == "jincornetwork" ]; then
+elif [ "$1" = "jincornetwork" ]; then
   initJincorNetworkChannel
 else
   echo "Usage: init.sh {config|jincornetwork}"

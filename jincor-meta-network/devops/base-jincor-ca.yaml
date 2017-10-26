@@ -6,7 +6,8 @@ services:
     env_file:
       - .env
     environment:
-      - FABRIC_CA_HOME=/etc/hyperledger/fabric-ca-server/
+      - FABRIC_CA_SERVER_DEBUG=false
+      - FABRIC_CA_SERVER_HOME=/etc/hyperledger/fabric-ca-server/
       - FABRIC_CA_SERVER_TLS_ENABLED=${TLS_ENABLED}
     mem_limit: 512m
     command: sh -c "fabric-ca-server start"
