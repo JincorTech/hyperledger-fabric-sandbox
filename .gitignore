@@ -6,6 +6,7 @@
 .project
 
 /devops/.env
+/jincor-meta-network/devops/shared
 
 /artifacts/tmp/*
 /artifacts/channels/*

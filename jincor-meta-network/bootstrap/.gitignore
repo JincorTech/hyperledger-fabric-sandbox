@@ -2,3 +2,4 @@
 /crypto-config/*
 fabric-ca/*/*
 !fabric-ca/*/fabric-ca-server-config.yaml
+!fabric-ca/*/*.sh

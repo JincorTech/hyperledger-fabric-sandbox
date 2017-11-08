@@ -40,7 +40,7 @@
 port: 7054
 
 # Enables debug logging (default: false)
-debug: false
+debug: true
 
 # Size limit of an acceptable CRL in bytes (default: 512000)
 crlsizelimit: 512000
@@ -133,31 +133,58 @@ registry:
           hf.GenCRL: true
           hf.Registrar.Attributes: "*"
 
-     #- name: Orderer@orderer.jincor.com
-     #  pass: JdOQYG2Vwj3kyqUzKFqXqaIGDNc
-     #  type: orderer
-     #  affiliation: "jincororderer.other"
-     #  maxenrollments: -1
-     #  attrs:
-     #     hf.Registrar.Roles: "orderer"
-     #     hf.Registrar.DelegateRoles: "client"
-     #     hf.Revoker: true
-     #     hf.IntermediateCA: true
-     #     hf.GenCRL: true
-     #     hf.Registrar.Attributes: "*"
-
-     - name: User@orderer.jincor.com
-       pass: kqH14o2tm4YNmNUdcCH5W3t5PXw
-       type: user
-       affiliation: "jincororderer.other"
+     - name: Admin@orderer.jincor.com
+       pass: jsrCVSwZ7qnXv8av2Vdw0xbSoWu
+       type: client
+       affiliation: "jincororderer.infrastructure"
        maxenrollments: -1
        attrs:
-          hf.Registrar.Roles: "user"
-          hf.Registrar.DelegateRoles: "user"
-          hf.Revoker: false
+          hf.Registrar.Roles: "orderer"
+          hf.Registrar.DelegateRoles: "client"
+          hf.Revoker: true
           hf.IntermediateCA: true
-          hf.GenCRL: false
+          hf.GenCRL: true
           hf.Registrar.Attributes: "*"
+
+     - name: orderer0.orderer.jincor.com
+       pass: JdOQYG2Vwj3kyqUzKFqXqaIGDNc
+       type: orderer
+       affiliation: "jincororderer.infrastructure"
+       maxenrollments: -1
+       attrs:
+         hf.Registrar.Roles: "orderer"
+         hf.Registrar.DelegateRoles: "client"
+         hf.Revoker: true
+         hf.IntermediateCA: true
+         hf.GenCRL: true
+         hf.Registrar.Attributes: "*"
+
+     - name: orderer1.orderer.jincor.com
+       pass: mr2nPvdRaP67qEbQVSUEXYFMTXi
+       type: orderer
+       affiliation: "jincororderer.infrastructure"
+       maxenrollments: -1
+       attrs:
+         hf.Registrar.Roles: "orderer"
+         hf.Registrar.DelegateRoles: "client"
+         hf.Revoker: true
+         hf.IntermediateCA: true
+         hf.GenCRL: true
+         hf.Registrar.Attributes: "*"
+
+     - name: orderer2.orderer.jincor.com
+       pass: XTZS7KOEQPOw3YB1furm7SjWXFR
+       type: orderer
+       affiliation: "jincororderer.infrastructure"
+       maxenrollments: -1
+       attrs:
+         hf.Registrar.Roles: "orderer"
+         hf.Registrar.DelegateRoles: "client"
+         hf.Revoker: true
+         hf.IntermediateCA: true
+         hf.GenCRL: true
+         hf.Registrar.Attributes: "*"
+
 
 #############################################################################
 #  Database section
@@ -210,6 +237,7 @@ affiliations:
       - technical
       - marketing
       - community
+      - infrastructure
       - other
 
 #############################################################################
@@ -234,9 +262,16 @@ signing:
         - digital signature
       expiry: 8760h
     profiles:
+      cert:
+        expiry: 8760h
+        usage:
+          - digital signature
+          - signing
       ca:
          usage:
-           - cert sign
+            - cert sign
+            - key encipherment
+            - digital signature
          expiry: 43800h
          caconstraint:
            isca: true
@@ -275,7 +310,7 @@ csr:
         ST:
         L: Larnaca
         O: Jincor Limited
-        OU:
+        OU: Jincor
    hosts:
      - ca.orderer.jincor.com
    ca:

@@ -1,15 +1,17 @@
 version: '2'
 services:
   base-jincor-ca:
-    image: registry.jincor.com/hyperledger/fabric-ca:latest
+    image: jincort/hlf-ca:x86_64-1.1.0
     restart: always
     env_file:
       - .env
     environment:
-      - FABRIC_CA_SERVER_DEBUG=false
+      - FABRIC_CA_SERVER_DEBUG=true
       - FABRIC_CA_SERVER_HOME=/etc/hyperledger/fabric-ca-server/
       - FABRIC_CA_SERVER_TLS_ENABLED=${TLS_ENABLED}
     mem_limit: 512m
     command: sh -c "fabric-ca-server start"
+    volumes:
+        - /var/run/:/host/var/run
     networks:
       - jincormetanetwork

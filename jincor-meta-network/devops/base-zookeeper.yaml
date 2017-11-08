@@ -1,9 +1,11 @@
 version: '2'
 services:
   base-zookeeper:
-    image: registry.jincor.com/hyperledger/fabric-zookeeper:latest
+    image: jincort/hlf-zookeeper:x86_64-1.1.0
     restart: always
     environment:
+      - ZOO_DATA_DIR=/data/base
+      - ZOO_DATA_LOG_DIR=/data/log
       - ZOO_SERVERS=server.1=zookeeper0.jincor.com:2888:3888 server.2=zookeeper1.jincor.com:2888:3888 server.3=zookeeper2.jincor.com:2888:3888
     #ports:
     #  - 2181

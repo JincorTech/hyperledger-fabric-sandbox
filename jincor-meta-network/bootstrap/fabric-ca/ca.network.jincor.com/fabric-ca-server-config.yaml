@@ -40,7 +40,7 @@
 port: 7054
 
 # Enables debug logging (default: false)
-debug: false
+debug: true
 
 # Size limit of an acceptable CRL in bytes (default: 512000)
 crlsizelimit: 512000
@@ -133,30 +133,69 @@ registry:
           hf.GenCRL: true
           hf.Registrar.Attributes: "*"
 
-     # - name: Peer@network.jincor.com
-     #   pass: L7OmCiar7hXr61UbXeBmfv5ehOY
-     #   type: peer
-     #   affiliation: "jincornetwork.other"
-     #   maxenrollments: -1
-     #   attrs:
-     #      hf.Registrar.Roles: "peer"
-     #      hf.Registrar.DelegateRoles: "client"
-     #      hf.Revoker: true
-     #      hf.IntermediateCA: true
-     #      hf.GenCRL: true
-     #      hf.Registrar.Attributes: "*"
-
-     - name: User@network.jincor.com
-       pass: HNTkyTOUFqNESCtQXIiLHYSNJZY
-       type: user
-       affiliation: "jincornetwork.other"
+     - name: Admin@network.jincor.com
+       pass: AhiasybdyTmDOR8scRD5h36fc2m
+       type: client
+       affiliation: "jincornetwork.infrastructure"
        maxenrollments: -1
        attrs:
-          hf.Registrar.Roles: "user"
-          hf.Registrar.DelegateRoles: "user"
-          hf.Revoker: false
+          hf.Registrar.Roles: "peer"
+          hf.Registrar.DelegateRoles: "client"
+          hf.Revoker: true
           hf.IntermediateCA: true
-          hf.GenCRL: false
+          hf.GenCRL: true
+          hf.Registrar.Attributes: "*"
+
+     - name: peer0.network.jincor.com
+       pass: L7OmCiar7hXr61UbXeBmfv5ehOY
+       type: peer
+       affiliation: "jincornetwork.infrastructure"
+       maxenrollments: -1
+       attrs:
+          hf.Registrar.Roles: "peer"
+          hf.Registrar.DelegateRoles: "client"
+          hf.Revoker: true
+          hf.IntermediateCA: true
+          hf.GenCRL: true
+          hf.Registrar.Attributes: "*"
+
+     - name: peer1.network.jincor.com
+       pass: yBgIQXi9ZyEOO7JIE23HK7Hu0Oh
+       type: peer
+       affiliation: "jincornetwork.infrastructure"
+       maxenrollments: -1
+       attrs:
+          hf.Registrar.Roles: "peer"
+          hf.Registrar.DelegateRoles: "client"
+          hf.Revoker: true
+          hf.IntermediateCA: true
+          hf.GenCRL: true
+          hf.Registrar.Attributes: "*"
+
+     - name: peer2.network.jincor.com
+       pass: bvGjjqlXXgoN2IA3AptlxvWgvX5
+       type: peer
+       affiliation: "jincornetwork.infrastructure"
+       maxenrollments: -1
+       attrs:
+          hf.Registrar.Roles: "peer"
+          hf.Registrar.DelegateRoles: "client"
+          hf.Revoker: true
+          hf.IntermediateCA: true
+          hf.GenCRL: true
+          hf.Registrar.Attributes: "*"
+
+     - name: peer3.network.jincor.com
+       pass: AkduKiZxM684Kmr5VppcgroktT1
+       type: peer
+       affiliation: "jincornetwork.infrastructure"
+       maxenrollments: -1
+       attrs:
+          hf.Registrar.Roles: "peer"
+          hf.Registrar.DelegateRoles: "client"
+          hf.Revoker: true
+          hf.IntermediateCA: true
+          hf.GenCRL: true
           hf.Registrar.Attributes: "*"
 
 #############################################################################
@@ -210,6 +249,7 @@ affiliations:
       - technical
       - marketing
       - community
+      - infrastructure
       - other
 
 #############################################################################
@@ -234,6 +274,11 @@ signing:
         - digital signature
       expiry: 8760h
     profiles:
+      cert:
+        expiry: 8760h
+        usage:
+          - signing
+          - digital signature
       ca:
          usage:
             - cert sign
@@ -277,7 +322,7 @@ csr:
         ST:
         L: Larnaca
         O: Jincor Limited
-        OU:
+        OU: Jincor
    hosts:
      - ca.network.jincor.com
    ca:

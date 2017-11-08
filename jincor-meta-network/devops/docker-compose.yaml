@@ -1,19 +1,14 @@
 version: '2'
 
 networks:
+  # subnet -> 172.124.0.0/24
   jincormetanetwork:
     external: true
-    #driver: bridge
-    #ipam:
-    #  driver: default
-    #  config:
-    #    - subnet: 172.124.0.0/24
-    #      gateway: 172.124.0.1
 
 services:
   cli.jincor.com:
     container_name: cli.jincor.com
-    image: registry.jincor.com/hyperledger/fabric-tools:latest
+    image: jincort/hlf-tools:x86_64-1.1.0
     tty: true
     environment:
       - GOPATH=/opt/gopath
@@ -41,6 +36,8 @@ services:
     extends:
       file: base-zookeeper.yaml
       service: base-zookeeper
+    volumes:
+      - zooData0:/data
     environment:
       - ZOO_MY_ID=1
 
@@ -49,6 +46,8 @@ services:
     extends:
       file: base-zookeeper.yaml
       service: base-zookeeper
+    volumes:
+      - zooData1:/data
     environment:
       - ZOO_MY_ID=2
 
@@ -57,6 +56,8 @@ services:
     extends:
       file: base-zookeeper.yaml
       service: base-zookeeper
+    volumes:
+      - zooData2:/data
     environment:
       - ZOO_MY_ID=3
 
@@ -65,6 +66,8 @@ services:
     extends:
       file: base-kafka.yaml
       service: base-kafka
+    volumes:
+      - kafkaData0:/logs
     environment:
       - KAFKA_BROKER_ID=1
     depends_on:
@@ -77,6 +80,8 @@ services:
     extends:
       file: base-kafka.yaml
       service: base-kafka
+    volumes:
+      - kafkaData1:/logs
     environment:
       - KAFKA_BROKER_ID=2
     depends_on:
@@ -89,6 +94,8 @@ services:
     extends:
       file: base-kafka.yaml
       service: base-kafka
+    volumes:
+      - kafkaData2:/logs
     environment:
       - KAFKA_BROKER_ID=3
     depends_on:
@@ -101,6 +108,8 @@ services:
     extends:
       file: base-kafka.yaml
       service: base-kafka
+    volumes:
+      - kafkaData3:/logs
     environment:
       - KAFKA_BROKER_ID=4
     depends_on:
@@ -114,12 +123,12 @@ services:
       file: base-jincor-ca.yaml
       service: base-jincor-ca
     volumes:
-      - ../bootstrap/fabric-ca/ca.orderer.jincor.com/:/etc/hyperledger/fabric-ca-server/
+      - caOrdererCrypto:/etc/hyperledger/fabric-ca-server/
     networks:
       jincormetanetwork:
         ipv4_address: 172.124.0.10
-    #ports:
-    #  - 7055:7054
+    ports:
+      - 7055:7054
 
   ca.network.jincor.com:
     container_name: ca.network.jincor.com
@@ -127,27 +136,33 @@ services:
       file: base-jincor-ca.yaml
       service: base-jincor-ca
     volumes:
-      - ../bootstrap/fabric-ca/ca.network.jincor.com/:/etc/hyperledger/fabric-ca-server/
+      - caNetworkCrypto:/etc/hyperledger/fabric-ca-server/
     networks:
       jincormetanetwork:
         ipv4_address: 172.124.0.11
-    #ports:
-    #  - 7054:7054
+    ports:
+      - 7054:7054
 
   orderer0.orderer.jincor.com:
     container_name: orderer0.orderer.jincor.com
     extends:
       file: base-jincor-orderer.yaml
       service: base-jincor-orderer
+    environment:
+      - ORDERER_GENERAL_LOCALMSPDIR=/etc/hyperledger/crypto/orderers/orderer0.orderer.jincor.com/msp
+      - ORDERER_GENERAL_TLS_PRIVATEKEY=/etc/hyperledger/crypto/orderers/orderer0.orderer.jincor.com/tls/server.key
+      - ORDERER_GENERAL_TLS_CERTIFICATE=/etc/hyperledger/crypto/orderers/orderer0.orderer.jincor.com/tls/server.crt
+      - ORDERER_GENERAL_TLS_ROOTCAS=[/etc/hyperledger/crypto/orderers/orderer0.orderer.jincor.com/tls/ca.crt,/etc/hyperledger/crypto/peers-tls/tlsca-cert.pem]
     volumes:
-      - ../bootstrap/crypto-config/ordererOrganizations/orderer.jincor.com/orderers/orderer0.orderer.jincor.com/:/etc/hyperledger/crypto/orderer/
-      - ../bootstrap/crypto-config/peerOrganizations/network.jincor.com/msp/:/etc/hyperledger/crypto/network.jincor.com/
-      - ../bootstrap/channels/orderer/:/var/hyperledger/orderer/
+      - ordererCrypto:/etc/hyperledger/crypto/orderers/:ro
+      - ordererGenesis:/var/hyperledger/orderer/:ro
+      - networkCryptoTls:/etc/hyperledger/crypto/peers-tls/:ro
+      - ordererData0:/var/hyperledger
     networks:
       jincormetanetwork:
         ipv4_address: 172.124.0.20
-    #ports:
-    #  - 7050:7050
+    ports:
+      - 7050:7050
     depends_on:
       - kafka0.jincor.com
       - kafka1.jincor.com
@@ -159,12 +174,18 @@ services:
     extends:
       file: base-jincor-orderer.yaml
       service: base-jincor-orderer
+    environment:
+      - ORDERER_GENERAL_LOCALMSPDIR=/etc/hyperledger/crypto/orderers/orderer1.orderer.jincor.com/msp
+      - ORDERER_GENERAL_TLS_PRIVATEKEY=/etc/hyperledger/crypto/orderers/orderer1.orderer.jincor.com/tls/server.key
+      - ORDERER_GENERAL_TLS_CERTIFICATE=/etc/hyperledger/crypto/orderers/orderer1.orderer.jincor.com/tls/server.crt
+      - ORDERER_GENERAL_TLS_ROOTCAS=[/etc/hyperledger/crypto/orderers/orderer1.orderer.jincor.com/tls/ca.crt,/etc/hyperledger/crypto/peers-tls/tlsca-cert.pem]
     volumes:
-      - ../bootstrap/crypto-config/ordererOrganizations/orderer.jincor.com/orderers/orderer1.orderer.jincor.com/:/etc/hyperledger/crypto/orderer/
-      - ../bootstrap/crypto-config/peerOrganizations/network.jincor.com/msp/:/etc/hyperledger/crypto/network.jincor.com/
-      - ../bootstrap/channels/orderer/:/var/hyperledger/orderer/
-    #ports:
-    #  - 8050:7050
+      - ordererCrypto:/etc/hyperledger/crypto/orderers/:ro
+      - ordererGenesis:/var/hyperledger/orderer/:ro
+      - networkCryptoTls:/etc/hyperledger/crypto/peers-tls/:ro
+      - ordererData1:/var/hyperledger
+    ports:
+      - 8050:7050
     networks:
       jincormetanetwork:
         ipv4_address: 172.124.0.21
@@ -179,15 +200,21 @@ services:
     extends:
       file: base-jincor-orderer.yaml
       service: base-jincor-orderer
+    environment:
+      - ORDERER_GENERAL_LOCALMSPDIR=/etc/hyperledger/crypto/orderers/orderer2.orderer.jincor.com/msp
+      - ORDERER_GENERAL_TLS_PRIVATEKEY=/etc/hyperledger/crypto/orderers/orderer2.orderer.jincor.com/tls/server.key
+      - ORDERER_GENERAL_TLS_CERTIFICATE=/etc/hyperledger/crypto/orderers/orderer2.orderer.jincor.com/tls/server.crt
+      - ORDERER_GENERAL_TLS_ROOTCAS=[/etc/hyperledger/crypto/orderers/orderer2.orderer.jincor.com/tls/ca.crt,/etc/hyperledger/crypto/peers-tls/tlsca-cert.pem]
     volumes:
-      - ../bootstrap/crypto-config/ordererOrganizations/orderer.jincor.com/orderers/orderer2.orderer.jincor.com/:/etc/hyperledger/crypto/orderer/
-      - ../bootstrap/crypto-config/peerOrganizations/network.jincor.com/msp/:/etc/hyperledger/crypto/network.jincor.com/
-      - ../bootstrap/channels/orderer/:/var/hyperledger/orderer/
+      - ordererCrypto:/etc/hyperledger/crypto/orderers/:ro
+      - ordererGenesis:/var/hyperledger/orderer/:ro
+      - networkCryptoTls:/etc/hyperledger/crypto/peers-tls/:ro
+      - ordererData2:/var/hyperledger
     networks:
       jincormetanetwork:
         ipv4_address: 172.124.0.22
-    #ports:
-    #  - 9050:7050
+    ports:
+      - 9050:7050
     depends_on:
       - kafka0.jincor.com
       - kafka1.jincor.com
@@ -204,18 +231,23 @@ services:
       - CORE_PEER_ADDRESS=peer0.network.jincor.com:7051
       - CORE_PEER_GOSSIP_EXTERNALENDPOINT=peer0.network.jincor.com:7051
       - CORE_PEER_GOSSIP_BOOTSTRAP=peer0.network.jincor.com:7051
+      - CORE_PEER_MSPCONFIGPATH=/etc/hyperledger/crypto/peers/peer0.network.jincor.com/msp
+      - CORE_PEER_TLS_ROOTCERT_FILE=/etc/hyperledger/crypto/peers/peer0.network.jincor.com/tls/ca.crt
+      - CORE_PEER_TLS_CERT_FILE=/etc/hyperledger/crypto/peers/peer0.network.jincor.com/tls/server.crt
+      - CORE_PEER_TLS_KEY_FILE=/etc/hyperledger/crypto/peers/peer0.network.jincor.com/tls/server.key
     networks:
       jincormetanetwork:
         ipv4_address: 172.124.0.30
-    #ports:
-    #  - 7051:7051
-    #  - 7053:7053
+    ports:
+      - 7051:7051
+      - 7053:7053
     depends_on:
       - orderer0.orderer.jincor.com
       - orderer1.orderer.jincor.com
       - orderer2.orderer.jincor.com
     volumes:
-        - ../bootstrap/crypto-config/peerOrganizations/network.jincor.com/peers/peer0.network.jincor.com:/etc/hyperledger/crypto/peer
+      - networkCrypto:/etc/hyperledger/crypto/peers:ro
+      - networkPeerData0:/var/hyperledger
 
   peer1.network.jincor.com:
     container_name: peer1.network.jincor.com
@@ -227,16 +259,87 @@ services:
       - CORE_PEER_ADDRESS=peer1.network.jincor.com:7051
       - CORE_PEER_GOSSIP_EXTERNALENDPOINT=peer1.network.jincor.com:7051
       - CORE_PEER_GOSSIP_BOOTSTRAP=peer0.network.jincor.com:7051
+      - CORE_PEER_MSPCONFIGPATH=/etc/hyperledger/crypto/peers/peer1.network.jincor.com/msp
+      - CORE_PEER_TLS_ROOTCERT_FILE=/etc/hyperledger/crypto/peers/peer1.network.jincor.com/tls/ca.crt
+      - CORE_PEER_TLS_CERT_FILE=/etc/hyperledger/crypto/peers/peer1.network.jincor.com/tls/server.crt
+      - CORE_PEER_TLS_KEY_FILE=/etc/hyperledger/crypto/peers/peer1.network.jincor.com/tls/server.key
     networks:
       jincormetanetwork:
         ipv4_address: 172.124.0.31
-    #ports:
-    #  - 7056:7051
-    #  - 7058:7053
+    ports:
+      - 7056:7051
+      - 7058:7053
     depends_on:
       - peer0.network.jincor.com
       - orderer0.orderer.jincor.com
       - orderer1.orderer.jincor.com
       - orderer2.orderer.jincor.com
     volumes:
-        - ../bootstrap/crypto-config/peerOrganizations/network.jincor.com/peers/peer1.network.jincor.com:/etc/hyperledger/crypto/peer
+      - networkCrypto:/etc/hyperledger/crypto/peers:ro
+      - networkPeerData1:/var/hyperledger
+
+volumes:
+
+  zooData0:
+    external:
+      name: jincormetanetZooData0
+  zooData1:
+    external:
+      name: jincormetanetZooData1
+  zooData2:
+    external:
+      name: jincormetanetZooData2
+
+  kafkaData0:
+    external:
+      name: jincormetanetKafkaData0
+  kafkaData1:
+    external:
+      name: jincormetanetKafkaData1
+  kafkaData2:
+    external:
+      name: jincormetanetKafkaData2
+  kafkaData3:
+    external:
+      name: jincormetanetKafkaData3
+
+  caOrdererCrypto:
+    external:
+      name: jincormetanetCaOrderers
+  caNetworkCrypto:
+    external:
+      name: jincormetanetCaNetwork
+
+  ordererGenesis:
+    external:
+      name: jincormetanetOrdererGenesis
+  ordererCrypto:
+    external:
+      name: jincormetanetOrdererCryptodata
+  ordererCryptoTls:
+    external:
+      name: jincormetanetOrdererCryptodataTlsca
+
+  ordererData0:
+    external:
+      name: jincormetanetOrdererData0
+  ordererData1:
+    external:
+      name: jincormetanetOrdererData1
+  ordererData2:
+    external:
+      name: jincormetanetOrdererData2
+
+  networkCrypto:
+    external:
+      name: jincormetanetNetworkCryptodata
+  networkCryptoTls:
+    external:
+      name: jincormetanetNetworkCryptodataTlsca
+
+  networkPeerData0:
+    external:
+      name: jincormetanetNetworkPeerData0
+  networkPeerData1:
+    external:
+      name: jincormetanetNetworkPeerData1

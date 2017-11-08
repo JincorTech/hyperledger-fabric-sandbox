@@ -1,7 +1,7 @@
 version: '2'
 services:
   base-kafka:
-    image: registry.jincor.com/hyperledger/fabric-kafka:latest
+    image: jincort/hlf-kafka:x86_64-1.1.0
     restart: always
     environment:
       - KAFKA_MESSAGE_MAX_BYTES=103809024       # 99 * 1024 * 1024 B
@@ -10,6 +10,7 @@ services:
       - KAFKA_LOG_RETENTION_MS=-1
       - KAFKA_MIN_INSYNC_REPLICAS=2
       - KAFKA_DEFAULT_REPLICATION_FACTOR=3
+      - KAFKA_LOG_DIRS=/logs
       - KAFKA_ZOOKEEPER_CONNECT=zookeeper0.jincor.com:2181,zookeeper1.jincor.com:2181,zookeeper2.jincor.com:2181
     #ports:
     #  - 9092
