@@ -25,6 +25,13 @@ Profiles:
             Organizations:
                 - *JincorNetwork
 
+    JincorNetworkTestChannel:
+        Consortium: CommonConsortium
+        Application:
+            <<: *ApplicationDefaults
+            Organizations:
+                - *JincorNetwork
+
 ################################################################################
 #
 #   Section: Organizations

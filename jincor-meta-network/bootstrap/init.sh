@@ -115,8 +115,6 @@ function initConfigsFca() {
   docker stop ca.orderer.jincor.com ca.network.jincor.com
   docker rm ca.orderer.jincor.com ca.network.jincor.com
 
-  makeGenesisAndChannel
-
   echo "----------------------- Configuration is ready! ---------------------------------"
 }
 
@@ -171,12 +169,12 @@ function initConfigs() {
     ./fabric-ca/ca.network.jincor.com/tlsclient /CN=tls.client.ca.network.jincor.com
   mv ./fabric-ca/ca.network.jincor.com/tlsserver-cert.key ./fabric-ca/ca.network.jincor.com/msp/keystore/tlsserver-key.pem
 
-  makeGenesisAndChannel
 
   echo "----------------------- Configuration is ready! ---------------------------------"
 }
 
-function makeGenesisAndChannel() {
+function makeGenesisAndChannels() {
+  echo "----------------------- Gensis and channels ---------------------------------"
   echo ">> Make orderer genesis block"
   ../../scripts/tools/bin/configtxgen -profile JincorOrdererGenesis -channelID=jincormetaorderer \
     -outputBlock ./channels/orderer/orderer.genesis.block
@@ -188,6 +186,15 @@ function makeGenesisAndChannel() {
   echo ">> Make anchors for jincornetwork"
   ../../scripts/tools/bin/configtxgen -profile JincorNetworkChannel \
     -outputAnchorPeersUpdate ./channels/JincorNetworkChannelAnchors.tx -channelID=jincormetanet -asOrg JincorNetwork
+
+  echo ">> Make channel jincornetwok_test"
+  ../../scripts/tools/bin/configtxgen -profile JincorNetworkTestChannel \
+    -outputCreateChannelTx ./channels/JincorNetworkTestChannel.tx -channelID=jincormetanettest
+
+  echo ">> Make anchors for jincornetwork_test"
+  ../../scripts/tools/bin/configtxgen -profile JincorNetworkTestChannel \
+    -outputAnchorPeersUpdate ./channels/JincorNetworkTestChannelAnchors.tx -channelID=jincormetanettest -asOrg JincorNetwork
+  echo "----------------------- Gensis and channels is ready! ---------------------------------"
 }
 
 function execCliContainer() {
@@ -197,22 +204,31 @@ function execCliContainer() {
 }
 
 function initJincorNetworkChannel() {
-  echo "----------------------- Initialize jincormetanet --------------------------------"
+  echo "----------------------- Initialize jincormetanet/test --------------------------------"
 
   local orderer="-o orderer0.orderer.jincor.com:7050"
   local configDir="/opt/sandbox/channels"
-  local channelName="jincormetanet"
 
-  execCliContainer "peer0.network.jincor.com" channel create -c $channelName -f $configDir/JincorNetworkChannel.tx $orderer
-  execCliContainer "peer0.network.jincor.com" channel fetch -c $channelName $orderer config $configDir/JincorNetworkChannel.block
+  declare -A channelNames
+  channelNames=(
+    [JincorNetworkChannel]=jincormetanet
+    [JincorNetworkTestChannel]=jincormetanettest
+  )
 
-  for peer in peer0 peer1; do
-    execCliContainer "$peer.network.jincor.com" channel join -b $configDir/JincorNetworkChannel.block $orderer
+  for channel in JincorNetworkChannel JincorNetworkTestChannel; do
+    channelName="${channelNames[$channel]}"
+
+    execCliContainer "peer0.network.jincor.com" channel create -c $channelName -f $configDir/${channel}.tx $orderer
+    execCliContainer "peer0.network.jincor.com" channel fetch -c $channelName $orderer config $configDir/${channel}.block
+
+    for peer in peer0 peer1; do
+      execCliContainer "$peer.network.jincor.com" channel join -b $configDir/${channel}.block $orderer
+    done
+
+    execCliContainer "peer0.network.jincor.com" channel update -c $channelName -f $configDir/${channel}Anchors.tx $orderer
   done
 
-  execCliContainer "peer0.network.jincor.com" channel update -c $channelName -f $configDir/JincorNetworkChannelAnchors.tx $orderer
-
-  echo "----------------------- jincormetanet is ready! ---------------------------------"
+  echo "----------------------- jincormetanet/test is ready! ---------------------------------"
 }
 
 case "$1" in
@@ -220,18 +236,22 @@ case "$1" in
   config)
     initConfigsFca
     mkdir -p ../devops/shared/
+    cp -rvf ./fabric-ca/ ../devops/shared/
     cp -rvf ./crypto-config/ordererOrganizations/orderer.jincor.com/orderers ../devops/shared/
     cp -rvf ./crypto-config/peerOrganizations/network.jincor.com/peers ../devops/shared/
-    cp -rvf ./channels/ ../devops/shared/
-    cp -rvf ./fabric-ca/ ../devops/shared/
     cp -rvf ./crypto-config/ordererOrganizations/orderer.jincor.com/msp/tlscacerts ../devops/shared/orderers/
     cp -rvf ./crypto-config/peerOrganizations/network.jincor.com/msp/tlscacerts ../devops/shared/peers/
+    ;;
+  channels)
+    makeGenesisAndChannels
+    mkdir -p ../devops/shared/
+    cp -rvf ./channels/ ../devops/shared/
     ;;
   jincornetwork)
     initJincorNetworkChannel
     ;;
   *)
-    echo "Usage: init.sh {config|jincornetwork}"
+    echo "Usage: init.sh {config|channels|jincornetwork}"
     ;;
 
 esac
