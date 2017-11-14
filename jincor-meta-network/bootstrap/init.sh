@@ -175,6 +175,8 @@ function initConfigs() {
 
 function makeGenesisAndChannels() {
   echo "----------------------- Gensis and channels ---------------------------------"
+  mkdir -p ./channels/orderer
+
   echo ">> Make orderer genesis block"
   ../../scripts/tools/bin/configtxgen -profile JincorOrdererGenesis -channelID=jincormetaorderer \
     -outputBlock ./channels/orderer/orderer.genesis.block

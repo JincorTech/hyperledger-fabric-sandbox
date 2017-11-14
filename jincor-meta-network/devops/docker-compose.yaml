@@ -26,7 +26,7 @@ services:
     command: /bin/bash
     volumes:
       - /var/run/:/host/var/run/
-      - ../chaincode/src/github.com/JincorTech:/opt/gopath/src/github.com/JincorTech/
+      - ../chaincodes/src/github.com/JincorTech:/opt/gopath/src/github.com/JincorTech/
       - ../bootstrap/:/opt/sandbox/
     networks:
       - jincormetanetwork

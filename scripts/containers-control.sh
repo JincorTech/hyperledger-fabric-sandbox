@@ -36,9 +36,9 @@ function dkrm(){
 
 function down(){
     dockercompose down $@
-    docker stop $(docker ps | awk '/dev-peer/{printf $1" "}')
-    docker rm $(docker ps -a | awk '/dev-peer/{printf $1" "}')
-    docker rmi $(docker images | awk '/dev-peer/{printf $1":latest "}')
+    docker stop $(docker ps | awk '/-peer/{printf $1" "}')
+    docker rm $(docker ps -a | awk '/-peer/{printf $1" "}')
+    docker rmi $(docker images | awk '/-peer/{printf $1":latest "}')
 
     rm -rf /tmp/hfc-test-kvs_peerOrg* $HOME/.hfc-key-store/ /tmp/fabric-client-kvs_peerOrg*
 }
